@@ -1,0 +1,21 @@
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend build output / bundled tools
+project/target/
+project/maven/
+
+# Backend static seed assets (demo images + bundled admin panel) - not tracked
+project/src/main/resources/static/
+
+# Frontend
+client_home/node_modules/
+client_home/dist/
+client_home/unpackage/
+client_home/.env.local
+client_home/.env.*.local
