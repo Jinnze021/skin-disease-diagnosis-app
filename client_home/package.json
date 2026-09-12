@@ -44,7 +44,7 @@
     "lint:stylelint": "stylelint --cache --fix \"**/*.{vue,less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/"
   },
   "dependencies": {
-    "@dcloudio/uni-app": "2.0.2-4040520250103001",
+    "@dcloudio/uni-app": "2.0.2-5020420260813001",
     "@dcloudio/uni-app-plus": "2.0.2-4040520250103001",
     "@dcloudio/uni-h5": "2.0.2-4040520250103001",
     "@dcloudio/uni-helper-json": "*",

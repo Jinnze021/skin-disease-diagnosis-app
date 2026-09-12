@@ -975,10 +975,10 @@
   resolved "https://registry.npmmirror.com/@dcloudio/uni-app-plus/-/uni-app-plus-2.0.2-4040520250103001.tgz#61460a151fb82da3f9d7d7b91b11a12d6dec9b60"
   integrity sha512-hHpq3f+C9ezleT3lRp+urq3Y8kYRrYN0eb7VzZqMIK++CFuN+eqEhGw5Q38mQiVXV80dDZboghMFXemP3wVlkQ==
 
-"@dcloudio/uni-app@2.0.2-4040520250103001":
-  version "2.0.2-4040520250103001"
-  resolved "https://registry.npmmirror.com/@dcloudio/uni-app/-/uni-app-2.0.2-4040520250103001.tgz#97719f18abaca097e25b8d76a8d1129fae32916e"
-  integrity sha512-Ii0+Ad7qrOJQikj2IJCg+DjoXmxonx3+Ewp3cWdJxbBReVv0AKtVWBwfGStUOyMMg7aWKnRZAya9HtiGQxMmqA==
+"@dcloudio/uni-app@2.0.2-5020420260813001":
+  version "2.0.2-5020420260813001"
+  resolved "https://registry.yarnpkg.com/@dcloudio/uni-app/-/uni-app-2.0.2-5020420260813001.tgz#b1a16515d5bc5bf8ce9aecc7c5529b311d908d1f"
+  integrity sha512-Nv/b5FoSDHjDDZC9X83XDgdqzpX0usTCRSd7yXU3i7e90sdpD2gdzSuTghMeyA4bjF25Isw+7CSNvamCRTodNw==
 
 "@dcloudio/uni-automator@2.0.2-4040520250103001":
   version "2.0.2-4040520250103001"
