@@ -1124,15 +1124,10 @@
   resolved "https://registry.npmmirror.com/@dcloudio/uni-stacktracey/-/uni-stacktracey-2.0.2-4040520250103001.tgz#c75de867ac06a6dc4627efd4f5018394687a83b8"
   integrity sha512-IQlU+4nIrGWbdvcHRDNLb5ggbbdMIiMt4xUR8M3cf50GMw3X0fFZZwWi3PzmqD2XjgEvt8Hl+bkZM4uNbP1ZeA==
 
-"@dcloudio/uni-stat@2.0.2-4040520250103001":
-  version "2.0.2-4040520250103001"
-  resolved "https://registry.npmmirror.com/@dcloudio/uni-stat/-/uni-stat-2.0.2-4040520250103001.tgz#58fc8d7c4d65c128bcbfee0f7a738ab691437c06"
-  integrity sha512-cQsMcc4VnmB0ak3LCgt7LXD+VNy6CbgNroqfh0xUwgKA4dp6VaX8mJsUmXdsY9/r+FLnPYlhd9aaobCOSWfzqg==
-
-"@dcloudio/uni-stat@^2.0.2-4040520250103001":
-  version "2.0.2-4050720250324001"
-  resolved "https://registry.npmmirror.com/@dcloudio/uni-stat/-/uni-stat-2.0.2-4050720250324001.tgz#8c3755075ba108db3587cfeeae60f6f399c1b014"
-  integrity sha512-LdDDWqPOPdQfwAXAwQbtKhhSg+iuq2xxVdRt/E71OUELaMxJnFXRHkQ0uIlHGg6bhVcId/btsj/t6F2fqsSKwQ==
+"@dcloudio/uni-stat@2.0.2-5020420260813001", "@dcloudio/uni-stat@^2.0.2-4040520250103001":
+  version "2.0.2-5020420260813001"
+  resolved "https://registry.yarnpkg.com/@dcloudio/uni-stat/-/uni-stat-2.0.2-5020420260813001.tgz#201234e0c3a50e6401741a86f7e14753d7c5b16e"
+  integrity sha512-lsMrv2lyHxVS8SU7p/THSZP+GtaVsUBawTdjBjLhT/ldR40CEHMTPCXVQDjoWFO+w+Q2z7+oM8JPALRn2En9SA==
 
 "@dcloudio/uni-template-compiler@2.0.2-4040520250103001":
   version "2.0.2-4040520250103001"
