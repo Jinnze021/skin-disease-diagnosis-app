@@ -32,16 +32,4 @@ public class OnlineConsultationController extends BaseController<OnlineConsultat
     public OnlineConsultationController(OnlineConsultationService service) {
         setService(service);
     }
-
-
-
-    @PostMapping("/add")
-    @Transactional
-    public Map<String, Object> add(HttpServletRequest request) throws IOException {
-        Map<String,Object> paramMap = service.readBody(request.getReader());
-        this.addMap(paramMap);
-        return success(1);
-    }
-
-
 }

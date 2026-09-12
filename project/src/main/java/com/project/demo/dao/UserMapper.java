@@ -62,5 +62,5 @@ public interface UserMapper extends BaseMapper<User>
      */
     int deleteUserByIds(Integer[] userIds);
 
-    String selectExamineState(@Param("sourceTable") String sourceTable, @Param("userId") Integer userId);
+    String selectRegisteredUserExamineState(@Param("userId") Integer userId);
 }

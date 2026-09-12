@@ -26,4 +26,9 @@ public final class RequestUser {
     public static boolean isAdmin(HttpServletRequest request) {
         return "管理员".equals(request.getAttribute(USER_GROUP_ATTRIBUTE));
     }
+
+    public static Integer userIdOrNull(HttpServletRequest request) {
+        Object value = request.getAttribute(USER_ID_ATTRIBUTE);
+        return value instanceof Integer ? (Integer) value : null;
+    }
 }

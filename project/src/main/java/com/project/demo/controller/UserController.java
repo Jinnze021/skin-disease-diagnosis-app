@@ -103,15 +103,10 @@ public class UserController extends BaseController<User, UserService> {
             return error(30000, "账号或密码不正确");
         }
 
-        Map<String, String> groupQuery = new HashMap<>();
-        groupQuery.put("name", user.getUserGroup());
-        List groupList = userGroupService.selectBaseList(
-                userGroupService.select(groupQuery, new HashMap<>()));
-        if (groupList.isEmpty()) {
+        UserGroup userGroup = userGroupService.findByName(user.getUserGroup());
+        if (userGroup == null) {
             return error(30000, "用户组不存在");
         }
-
-        UserGroup userGroup = (UserGroup) groupList.get(0);
         if (StringUtils.hasText(userGroup.getSourceTable())) {
             String examineState = service.selectExamineState(
                     userGroup.getSourceTable(), user.getUserId());

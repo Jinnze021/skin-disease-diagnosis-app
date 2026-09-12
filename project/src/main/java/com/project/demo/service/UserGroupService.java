@@ -2,6 +2,7 @@ package com.project.demo.service;
 
 import com.project.demo.entity.UserGroup;
 import com.project.demo.service.base.BaseService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,6 +12,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserGroupService extends BaseService<UserGroup> {
 
+    public UserGroup findByName(String name) {
+        LambdaQueryWrapper<UserGroup> query = new LambdaQueryWrapper<UserGroup>()
+                .eq(UserGroup::getName, name)
+                .last("LIMIT 1");
+        return baseMapper.selectOne(query);
+    }
 }
 
 

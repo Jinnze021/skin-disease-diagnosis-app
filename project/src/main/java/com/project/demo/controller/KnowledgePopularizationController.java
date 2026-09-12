@@ -32,16 +32,4 @@ public class KnowledgePopularizationController extends BaseController<KnowledgeP
     public KnowledgePopularizationController(KnowledgePopularizationService service) {
         setService(service);
     }
-
-
-
-    @PostMapping("/add")
-    @Transactional
-    public Map<String, Object> add(HttpServletRequest request) throws IOException {
-        Map<String,Object> paramMap = service.readBody(request.getReader());
-        this.addMap(paramMap);
-        return success(1);
-    }
-
-
 }

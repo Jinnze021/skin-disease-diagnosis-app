@@ -19,7 +19,10 @@ public class UserService extends BaseService<User> {
     UserMapper userMapper;
 
     public String selectExamineState(String sourceTable, Integer userId) {
-        return userMapper.selectExamineState(sourceTable,userId);
+        if (!"registered_user".equals(sourceTable)) {
+            throw new IllegalArgumentException("Unsupported user source table");
+        }
+        return userMapper.selectRegisteredUserExamineState(userId);
     }
 
     public User findById(Integer userId) {

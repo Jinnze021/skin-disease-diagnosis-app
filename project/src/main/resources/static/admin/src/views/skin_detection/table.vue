@@ -181,16 +181,10 @@
 			get_list_before(param){
 				var user_group = this.user.user_group;
 				if(user_group != "管理员"){
-						let sqlwhere = "(";
-										if(user_group=="注册用户"){
-						sqlwhere+= "registered_user = " + this.user.user_id + " or ";
+					if(user_group=="注册用户"){
+						param["registered_user"] = this.user.user_id;
 					}
-																																																		if (sqlwhere.length>1){
-						sqlwhere = sqlwhere.substr(0,sqlwhere.length-4);
-						sqlwhere += ")";
-						param["sqlwhere"] = sqlwhere;
-					}
-					}
+				}
 				return param;
 			},
 

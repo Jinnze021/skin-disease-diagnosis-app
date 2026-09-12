@@ -81,27 +81,6 @@ CREATE TABLE `article` (
   `description` text COMMENT '文章描述',
   PRIMARY KEY (`article_id`,`title`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章';
-DROP TABLE IF EXISTS `access_token`;
-CREATE TABLE `access_token` (
-  `token_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '临时访问牌ID',
-  `token` varchar(64) CHARACTER SET utf8 DEFAULT NULL COMMENT '临时访问牌',
-  `info` text CHARACTER SET utf8 COMMENT '信息',
-  `maxage` int(2) NOT NULL DEFAULT '2' COMMENT '最大寿命：默认2小时',
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户编号',
-  PRIMARY KEY (`token_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='登陆访问时长';
-DROP TABLE IF EXISTS `code_token`;
-CREATE TABLE `code_token` (
-  `code_token_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '验证码ID',
-  `token` varchar(255) CHARACTER SET latin1 DEFAULT NULL COMMENT '令牌',
-  `code` varchar(255) CHARACTER SET latin1 DEFAULT NULL COMMENT '验证码',
-  `expire_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '失效时间',
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`code_token_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='验证码';
 DROP TABLE IF EXISTS `collect`;
 CREATE TABLE `collect` (
   `collect_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '收藏ID',

@@ -108,7 +108,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
-    <select id="selectExamineState" resultType="String">
-        select examine_state from ${sourceTable} WHERE user_id = #{userId}
+    <select id="selectRegisteredUserExamineState" resultType="String">
+        select examine_state from registered_user WHERE user_id = #{userId}
     </select>
 </mapper>

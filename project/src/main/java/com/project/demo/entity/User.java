@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -80,7 +79,6 @@ public class User implements Serializable {
      */
     @TableField(value = "password")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @JSONField(serialize = false)
     @ToString.Exclude
     private String password;
 

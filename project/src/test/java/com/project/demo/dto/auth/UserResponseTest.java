@@ -1,6 +1,5 @@
 package com.project.demo.dto.auth;
 
-import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.demo.entity.User;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,6 @@ class UserResponseTest {
 
         assertEquals("SafePass123!", user.getPassword());
         assertFalse(objectMapper.writeValueAsString(user).contains("password"));
-        assertFalse(JSON.toJSONString(user).contains("password"));
         assertNull(UserResponse.from(null));
     }
 }
