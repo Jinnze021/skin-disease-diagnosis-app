@@ -1,75 +1,68 @@
 package com.project.demo.interceptor;
 
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.http.HttpStatus;
+import com.project.demo.security.AccessLevel;
+import com.project.demo.security.EndpointAccessPolicy;
+import com.project.demo.security.RequestUser;
+import com.project.demo.security.SessionUser;
+import com.project.demo.security.TokenService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  */
-@Slf4j
+@Component
 public class LoginInterceptor implements HandlerInterceptor {
 
-    private String tokenName = "x-auth-token";
+    private final EndpointAccessPolicy accessPolicy;
+    private final TokenService tokenService;
+
+    public LoginInterceptor(EndpointAccessPolicy accessPolicy, TokenService tokenService) {
+        this.accessPolicy = accessPolicy;
+        this.tokenService = tokenService;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = request.getHeader(this.tokenName);
-
-        setHeader(request, response);
-        log.info("[请求接口] - {} , [请求类型] - {}",request.getRequestURL().toString(),request.getMethod());
-        if (request.getRequestURL().toString().contains("/api/user/login")){
+        AccessLevel required = accessPolicy.requiredAccess(request.getMethod(), applicationPath(request));
+        if (required == AccessLevel.PUBLIC) {
             return true;
         }
-        else if (request.getRequestURL().toString().contains("/api/user/state")){
-            return true;
+
+        Optional<SessionUser> sessionUser = tokenService.resolve(request.getHeader(TokenService.TOKEN_HEADER));
+        if (!sessionUser.isPresent()) {
+            writeError(response, HttpServletResponse.SC_UNAUTHORIZED, 40100, "未登录或登录已过期");
+            return false;
         }
-        else if (request.getRequestURL().toString().contains("/api/user/register")){
-            return true;
+
+        if (required == AccessLevel.ADMIN && !sessionUser.get().isAdmin()) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN, 40300, "无权访问该接口");
+            return false;
         }
-//        if (token == null || "".equals(token)){
-//            if ("POST".equals(request.getMethod())){
-//                return false;
-//            }else {
-//                return true;
-//            }
-//        }else {
-            return true;
-//        }
+
+        RequestUser.attach(request, sessionUser.get());
+        return true;
     }
 
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
-        //更新token
+    private String applicationPath(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (contextPath != null && !contextPath.isEmpty() && uri.startsWith(contextPath)) {
+            uri = uri.substring(contextPath.length());
+        }
+        return uri.isEmpty() ? "/" : uri;
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    private void writeError(HttpServletResponse response, int httpStatus, int code, String message)
+            throws IOException {
+        response.setStatus(httpStatus);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\":{\"code\":" + code
+                + ",\"message\":\"" + message + "\"}}");
     }
-
-    private void failure(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setHeader("Content-type", "application/json;charset=UTF-8");
-        response.setStatus(401);
-//        response.getWriter().write("");
-        response.sendRedirect("https://www.baidu.com");
-    }
-
-    private void setHeader(HttpServletRequest request, HttpServletResponse response) {
-        //跨域的header设置
-        response.setHeader("Access-control-Allow-Origin", request.getHeader("Origin"));
-        response.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, PATCH");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
-        response.setHeader("Access-Control-Max-Age", "1800");
-        //防止乱码，适用于传输JSON数据
-        response.setHeader("Content-Type", "application/json;charset=UTF-8");
-        response.setStatus(HttpStatus.OK.value());
-    }
-
 }

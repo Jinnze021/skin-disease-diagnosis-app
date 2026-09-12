@@ -12,13 +12,13 @@
 						</el-form-item>
 
 						<el-form-item label="密码" prop="password">
-							<el-input type="password" v-model="form.password" placeholder="5 到 16 个字符"
+							<el-input type="password" v-model="form.password" placeholder="8 到 16 个字符"
 								autocomplete="off">
 							</el-input>
 						</el-form-item>
 
 						<el-form-item label="确认密码" prop="confirm_password">
-							<el-input type="password" v-model="confirm_password" placeholder="5 到 16 个字符"
+							<el-input type="password" v-model="confirm_password" placeholder="8 到 16 个字符"
 								autocomplete="off">
 							</el-input>
 						</el-form-item>
@@ -35,13 +35,6 @@
 
 
 
-						<el-form-item label="身份" prop="user_group">
-							<el-select v-model="form.user_group" placeholder="身份">
-								<el-option v-for="(o,i) in list_user_group" :key="i" :value="o" :label="o"></el-option>
-							</el-select>
-						</el-form-item>
-
-					
 						<el-button class="float-right  rs_register" type="primary" @click="submit()" >注册</el-button>
 				
 						<el-button  class="float-right  rs_back" @click="$router.push('./login')">返回</el-button>
@@ -54,222 +47,55 @@
 
 <script>
 	import mixin from "@/mixins/page.js";
-					
+
 	export default {
 		mixins: [mixin],
 		data: function() {
 			return {
-				oauth: {
-					signIn: false
-				},
-
+				oauth: { signIn: false },
 				url_submit: "~/api/user/register?",
 				web: this.$store.state.web,
-
 				form: {
 					username: "",
 					password: "",
 					nickname: "",
 					email: "",
-					// phone: "",
-					user_group: "",
+					user_group: "注册用户",
 					avatar: ""
 				},
-
-				form_sub: {},
-
-				confirm_password: "",
-
-				list_user_group: [],
-				user_group: []
+				confirm_password: ""
 			}
 		},
 		methods: {
-			/**
-			 * 获取用户组
-			 */
-			async get_user_group() {
-				var res = await this.$get("~/api/user_group/get_list?register_min=1&register_max=2");
-				if(res.result && res.result.list){
-					var list = [""];
-					var lt = res.result.list;
-					lt.map(o=>{
-						list.push(o.name);
-					});
-					this.list_user_group = list;
-					this.user_group = lt;
-					console.log("list_user_group" ,list ,"user_group" ,lt);
-				}else if(res.error){
-					console.error(res.error);
-					this.$toast(res.error.message ,"error");
-				}
-			},
-
-			/**
-			 * 提交事件
-			 * @param {Object} param 表单
-			 * @param {Object} func 返回函数
-			 */
 			async submit(param, func) {
-			    // console.log('提交事件', param);
-			    if (!param) {
-			        param = this.form;
-			    }
-				param.avatar = param.avatar == "" ? "/api/upload/default_avatar.jpg" : param.avatar;
-			    // 提交前事件
-			    var pm = this.events("submit_before", Object.assign({}, param)) || param;
-			    // 提交前验证事件
-			    var msg = await this.events("submit_check", pm);
-			    var ret;
-
-				console.log("提交前错误信息msg：" ,msg);
-			    // 判断错误
-			    if (msg) {
-			        this.$toast(msg, 'danger');
-			    } else {
-			        // 提交表单
-			        ret = this.events("submit_main", pm, func);
-			    }
-			    // 返回结果
-			    return ret;
+				param = param || this.form;
+				param.avatar = param.avatar || "/api/upload/default_avatar.jpg";
+				var request = Object.assign({}, param);
+				var message = await this.submit_check(request);
+				if (message) {
+					this.$toast(message, "danger");
+					return;
+				}
+				return this.events("submit_main", request, func);
 			},
-
-			/**
-			 * 提交前事件
-			 * @param {Object} param
-			 */
-			submit_before(param){
-				var user_group = param.user_group;
-								},
-
-			/**
-			 * 提交前校验
-			 * @param {Object} param
-			 */
-			async submit_check(param){
-				var ret = null;
-
-				var email_regular = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-				// var phone_regular = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
-
-				// var {username ,password ,nickname ,user_group ,email ,phone} = param;
-				var {username ,password ,nickname ,email ,user_group} = param;
-
-				var confirm_password = this.confirm_password;
-
-				if(!username){
-					ret = "账号不能为空";
-				}
-				else if(username.length > 16 || username.length < 5){
-					ret = "账号长度应为5到16个字符之间！";
-				}
-				else if(!password){
-					ret = "密码不能为空!";
-				}
-				else if(password.length > 16 || password.length < 5){
-					ret = "密码长度应为5到16个字符之间！";
-				}
-				else if(nickname && nickname.length > 12 || nickname.length < 2){
-					ret = "昵称长度应为2个字符到12个字符之间";
-				}
-				else if(email && !email_regular.test(email)){
-					ret = "请输入正确的邮箱地址 例：test@test.com!";
-				}
-				// else if(phone && !phone_regular.test(phone)){
-				// 	ret = "请输入正确的手机号码 例：18955552312!";
-				// }
-				else if(password != confirm_password){
-					ret = "确认密码与密码不一致！";
-				}
-				else if(!user_group){
-					ret = "请选择用户组!";
-				}
-
-				if(!ret && user_group){
-									}
-
-				var p = {"username": param.username};
-
-				var res = await this.$get("~/api/user/count?" ,p);
-
-				if (res.result) {
-					ret = "用户已存在!";
-				}
-
-				return ret;
+			async submit_check(param) {
+				var emailRegular = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+				if (!param.username) return "账号不能为空";
+				if (param.username.length > 16 || param.username.length < 5) return "账号长度应为5到16个字符之间！";
+				if (!param.password) return "密码不能为空!";
+				if (param.password.length > 16 || param.password.length < 8) return "密码长度应为8到16个字符之间！";
+				if ((param.nickname && param.nickname.length > 12) || param.nickname.length < 2) return "昵称长度应为2个字符到12个字符之间";
+				if (param.email && !emailRegular.test(param.email)) return "请输入正确的邮箱地址 例：test@test.com!";
+				if (param.password !== this.confirm_password) return "确认密码与密码不一致！";
+				return null;
 			},
-
-			// 提交成功后
-			submit_after(json ,func){
-				var form = Object.assign({} ,this.form);
-				delete form.password;
-				console.log("查询表单form",form)
-				var table = this.user_group.getVal("source_table",{"name": form.user_group});
-				console.log("关联表:" ,table);
-				if(table){
-					this.get_register(form ,table);
-				}else{
-					console.log("用户组没有关联表");
-				}
-			},
-
-			/**
-			 * 获取注册表信息
-			 * @param {Object} form
-			 * @param {Object} table
-			 */
-			get_register(form ,table){
-				var form_sub = this.form_sub;
-				this.$get("~/api/user/get_obj?",form,(res)=>{
-					console.log("注册表信息res",res);
-					if(res.result && res.result.obj){
-						form_sub.user_id = res.result.obj.user_id;
-						this.submit_sub(form_sub,table);
-					}else if(res.error){
-						console.error(res.error);
-						this.$toast(res.error.message ,"error");
-					}
-				})
-			},
-
-
-			// 提交附加信息
-			submit_sub(form_sub ,table){
-				// 循环参数
-				for(var key in form_sub){
-					// 错误回调
-					try{
-						var value = form_sub[key];
-						// 值判断与值校验
-						console.log("键 ,值 ,类型" ,key ,value ,value instanceof Date);
-						if(value && value instanceof Date){
-							form_sub[key] = this.$toTime(value ,"yyyy-MM-dd hh:mm:ss");
-						}
-																																																																																												
-					}
-					catch(err){
-						console.log(key ,"转日期错误：" ,err ,"收到请无视!");
-					}
-				}
-				// 提交事件
-				this.$post("~/api/" + table + "/add?", form_sub, (res)=>{
-					console.log("提交结果res：" ,res)
-					if(res.result){
-						this.$toast("注册成功!" ,"success");
-						this.$store.commit("quit");
-						this.$router.push("/login");
-					} else if(res.error){
-						console.error(res.error);
-						this.$toast(res.error.message,"error");
-					}
-				});
+			submit_after() {
+				this.$toast("注册成功!", "success");
+				this.$store.commit("quit");
+				this.$router.push("/login");
 			}
 		},
-		created() {
-			this.get_user_group();
-		},
-		components:{
-							}
+		components: {}
 	}
 </script>
 

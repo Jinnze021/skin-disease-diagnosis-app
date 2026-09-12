@@ -406,23 +406,14 @@ export default {
 
       var confirm_password = this.confirm_password;
 
-      console.log(
-        '表单校验username ,password ,email ,nickname ,user_group',
-        username,
-        password,
-        email,
-        nickname,
-        user_group
-      );
-
       if (!username) {
         ret = '账号不能为空';
       } else if (username.length > 16 || username.length < 5) {
         ret = '账号长度应为5到16个字符之间！';
       } else if (!password) {
         ret = '密码不能为空!';
-      } else if (this.is_password && (password.length > 16 || password.length < 5)) {
-        ret = '密码长度应为5到16个字符之间！';
+      } else if (this.is_password && (password.length > 16 || password.length < 8)) {
+        ret = '密码长度应为8到16个字符之间！';
       } else if ((nickname && nickname.length > 12) || nickname.length < 2) {
         ret = '昵称长度应为2个字符到12个字符之间';
       } else if (email && !email_regular.test(email)) {

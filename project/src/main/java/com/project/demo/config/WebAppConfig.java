@@ -1,33 +1,38 @@
 package com.project.demo.config;
 
 import com.project.demo.interceptor.LoginInterceptor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  */
 @Configuration
-@Slf4j
 public class WebAppConfig implements WebMvcConfigurer {
+
+    private final LoginInterceptor loginInterceptor;
+    private final AppSecurityProperties securityProperties;
+
+    public WebAppConfig(LoginInterceptor loginInterceptor, AppSecurityProperties securityProperties) {
+        this.loginInterceptor = loginInterceptor;
+        this.securityProperties = securityProperties;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //登录拦截的管理器
-        InterceptorRegistration registration = registry.addInterceptor(loginInterceptor());
-        //拦截的地址
-        registration.addPathPatterns("/**");
-        //方行的地址
-//        registration.excludePathPatterns("/**");
-        //根据需要拦截，一般设置所有地址拦截，放行公共连接
+        registry.addInterceptor(loginInterceptor).addPathPatterns("/**");
     }
 
-    @Bean
-    public LoginInterceptor loginInterceptor(){
-        return new LoginInterceptor();
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        String[] origins = securityProperties.getCors().getAllowedOrigins().toArray(new String[0]);
+        registry.addMapping("/**")
+                .allowedOrigins(origins)
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                .allowedHeaders("Content-Type", "x-auth-token")
+                .exposedHeaders("x-auth-token")
+                .allowCredentials(true)
+                .maxAge(1800L);
     }
-
 }

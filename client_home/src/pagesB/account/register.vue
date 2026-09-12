@@ -54,15 +54,6 @@
 	      </uni-forms-item>
 	
 		
-	      <uni-forms-item class="user_group" name="user_group" label="身份">
-	        <view class="group_selector">
-	          <picker mode="selector" :range="list_user_group" range-key="name" @change="select_group">
-	            {{ form.user_group ? form.user_group : '选择身份' }}
-	            <uni-icons style="padding-left: 0.5rem" type="arrowdown" size="16"> </uni-icons>
-	          </picker>
-	        </view>
-	      </uni-forms-item>
-	
 	  	    	      <!-- 注册用户 -->
 	      <form_registered_user v-if="form.user_group === '注册用户'" @change="handleSubFormChange" :form="form_sub" ></form_registered_user>
 	    	  	    	  	    	  	    	  	    	  	
@@ -100,7 +91,7 @@ export default {
         password: '',
         email: '',
         // phone: '',
-        user_group: '',
+        user_group: '注册用户',
       },
 
       form_sub: {},
@@ -130,7 +121,7 @@ export default {
               errorMessage: '请输入密码',
             },
             {
-              minLength: 5,
+              minLength: 8,
               maxLength: 16,
               errorMessage: '密码长度在 {minLength} 到 {maxLength} 个字符',
             },
@@ -143,7 +134,7 @@ export default {
               errorMessage: '请输入确认密码',
             },
             {
-              minLength: 5,
+              minLength: 8,
               maxLength: 16,
               errorMessage: '确认密码长度在 {minLength} 到 {maxLength} 个字符',
             },
@@ -166,18 +157,7 @@ export default {
             },
           ],
         },
-        user_group: {
-          rules: [
-            {
-              required: true,
-              errorMessage: '请选择用户组',
-            },
-          ],
-        },
       },
-
-      // 用户组列表
-      list_user_group: [],
     };
   },
   methods: {
@@ -324,8 +304,6 @@ export default {
       // }
       else if (password != confirm_password) {
         ret = '确认密码与密码不一致！';
-      } else if (!user_group) {
-        ret = '请选择用户组!';
       }
       console.log(user_group);
       if (!ret && user_group) {
@@ -333,16 +311,6 @@ export default {
           var form_sub = Object.assign({} ,this.form_sub);
                                                                   }
                 }
-
-      var p = { username: param.username };
-
-      if (!ret) {
-        var res = await this.$get('~/api/user/count', p);
-
-        if (res.result) {
-          ret = '用户已存在!';
-        }
-      }
 
       return ret;
     },
@@ -359,32 +327,11 @@ export default {
       }, 800);
     },
 
-    // 选择学校时触发
-    select_group(e) {
-      // 选中后会触发这个回调函数 e.target.value是你选中的下拉菜单数组的索引
-      const i = e.target.value; // 将根据索引将你选中的学校名称在数组中找出来
-      var list = this.list_user_group;
-      this.form.user_group = list[i].name;
-    },
-
-    // 获取用户组
-    get_list_user_group() {
-      this.$get('~/api/user_group/get_list?register_min=2&register_max=3', {}, (res) => {
-        if (res.result && res.result.list) {
-          this.list_user_group = res.result.list;
-        } else if (res.error) {
-          console.error(res.error);
-          this.$toast(res.error.message);
-        }
-      });
-    },
     handleBlur(value, type) {
       this.$emit('change', { value, type });
     },
   },
-  onLoad() {
-    this.get_list_user_group();
-  },
+  onLoad() {},
   onReady() {},
 };
 </script>

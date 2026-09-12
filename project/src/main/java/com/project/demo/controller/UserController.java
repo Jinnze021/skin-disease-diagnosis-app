@@ -5,15 +5,17 @@ import com.project.demo.dto.auth.ChangePasswordRequest;
 import com.project.demo.dto.auth.LoginRequest;
 import com.project.demo.dto.auth.RegisterRequest;
 import com.project.demo.dto.auth.UserResponse;
-import com.project.demo.entity.AccessToken;
 import com.project.demo.entity.RegisteredUser;
 import com.project.demo.entity.User;
 import com.project.demo.entity.UserGroup;
+import com.project.demo.security.IssuedToken;
 import com.project.demo.security.PasswordService;
+import com.project.demo.security.RequestUser;
+import com.project.demo.security.SessionUser;
+import com.project.demo.security.TokenService;
 import com.project.demo.service.UserGroupService;
 import com.project.demo.service.RegisteredUserService;
 import com.project.demo.service.UserService;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("user")
@@ -40,18 +40,18 @@ public class UserController extends BaseController<User, UserService> {
     private final UserGroupService userGroupService;
     private final RegisteredUserService registeredUserService;
     private final PasswordService passwordService;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final TokenService tokenService;
 
     public UserController(UserService service,
                           UserGroupService userGroupService,
                           RegisteredUserService registeredUserService,
                           PasswordService passwordService,
-                          RedisTemplate<String, Object> redisTemplate) {
+                          TokenService tokenService) {
         setService(service);
         this.userGroupService = userGroupService;
         this.registeredUserService = registeredUserService;
         this.passwordService = passwordService;
-        this.redisTemplate = redisTemplate;
+        this.tokenService = tokenService;
     }
 
     @PostMapping("register")
@@ -111,17 +111,14 @@ public class UserController extends BaseController<User, UserService> {
             return userResult(UserResponse.from(user));
         }
 
-        AccessToken accessToken = new AccessToken();
-        accessToken.setToken(UUID.randomUUID().toString().replace("-", ""));
-        accessToken.setUser_id(user.getUserId());
-        redisTemplate.opsForValue().set(accessToken.getToken(), accessToken, Duration.ofHours(2));
-        return userResult(UserResponse.from(user, accessToken.getToken()));
+        IssuedToken issuedToken = tokenService.issue(new SessionUser(user.getUserId(), user.getUserGroup()));
+        return userResult(UserResponse.from(user, issuedToken.getToken()));
     }
 
     @PostMapping("change_password")
     public Map<String, Object> changePassword(@RequestBody ChangePasswordRequest data,
                                                HttpServletRequest request) {
-        Integer userId = tokenGetUserId(request.getHeader("x-auth-token"));
+        Integer userId = RequestUser.requireUserId(request);
         User user = service.findById(userId);
         if (user == null || !passwordService.matches(data.getOldPassword(), user.getPassword())) {
             return error(10000, "原密码不正确");
@@ -140,8 +137,8 @@ public class UserController extends BaseController<User, UserService> {
 
     @GetMapping("state")
     public Map<String, Object> state(HttpServletRequest request) {
-        String token = request.getHeader("x-auth-token");
-        User user = service.findById(tokenGetUserId(token));
+        String token = request.getHeader(TokenService.TOKEN_HEADER);
+        User user = service.findById(RequestUser.requireUserId(request));
         if (user == null) {
             return error(10000, "用户未登录");
         }
@@ -150,27 +147,17 @@ public class UserController extends BaseController<User, UserService> {
 
     @GetMapping("quit")
     public Map<String, Object> quit(HttpServletRequest request) {
-        String token = request.getHeader("x-auth-token");
-        if (StringUtils.hasText(token)) {
-            redisTemplate.delete(token);
-        }
+        String token = request.getHeader(TokenService.TOKEN_HEADER);
+        tokenService.revoke(token);
         return success("退出登录成功");
-    }
-
-    public Integer tokenGetUserId(String token) {
-        if (!StringUtils.hasText(token)) {
-            return 0;
-        }
-        Object storedToken = redisTemplate.opsForValue().get(token);
-        if (!(storedToken instanceof AccessToken)) {
-            return 0;
-        }
-        return ((AccessToken) storedToken).getUser_id();
     }
 
     @Override
     @RequestMapping("/get_obj")
     public Map<String, Object> obj(HttpServletRequest request) {
+        if (!RequestUser.isAdmin(request)) {
+            return userResult(UserResponse.from(service.findById(RequestUser.requireUserId(request))));
+        }
         User user = null;
         if (StringUtils.hasText(request.getParameter("user_id"))) {
             try {
