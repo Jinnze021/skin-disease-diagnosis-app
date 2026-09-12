@@ -1038,10 +1038,10 @@
   resolved "https://registry.npmmirror.com/@dcloudio/uni-i18n/-/uni-i18n-2.0.2-4040520250103001.tgz#814e2b60d6b8ad9843a82595e2b3a7dc9504fd0a"
   integrity sha512-xojAVjVJQY2Eem/gSOf9+Tghsx6++8DzUm8Q9G7s9yJC2LHDPJCGT1tAboOW3xTmrqY2b64XF+Lem77rv6g5CA==
 
-"@dcloudio/uni-migration@2.0.2-4040520250103001":
-  version "2.0.2-4040520250103001"
-  resolved "https://registry.npmmirror.com/@dcloudio/uni-migration/-/uni-migration-2.0.2-4040520250103001.tgz#cb27c6ad697c229344ef20b2b5526e9872ac45c7"
-  integrity sha512-4hutldLWmOKxIwIbzCFg3sEp6bfqxANHvXKBf4He5lkIKfWaGH5pMY2Msd0lz1cAN5HCdCHVRjE9Uwz1xeLTmA==
+"@dcloudio/uni-migration@2.0.2-5020420260813001":
+  version "2.0.2-5020420260813001"
+  resolved "https://registry.yarnpkg.com/@dcloudio/uni-migration/-/uni-migration-2.0.2-5020420260813001.tgz#ee64faa2067f0923355f4ceedfa9271412642945"
+  integrity sha512-qDSbfDS9Lw9yKeoFqKueQMZCia3bKj6BpFmtw8PXEzFh3hzNBuV26rjOHo7xGluBCxOywhiO8z23oZtMb2Cf5w==
   dependencies:
     commander "^4.0.1"
     fs-extra "^8.1.0"
