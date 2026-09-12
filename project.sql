@@ -219,7 +219,7 @@ CREATE TABLE `user` (
   `phone_state` smallint(1) unsigned NOT NULL DEFAULT '0' COMMENT '手机认证：(0未认证|1审核中|2已认证)',
   `username` varchar(16) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '用户名',
   `nickname` varchar(16) CHARACTER SET utf8 DEFAULT '' COMMENT '昵称',
-  `password` varchar(64) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '密码',
+  `password` varchar(64) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT 'BCrypt密码摘要',
   `email` varchar(64) CHARACTER SET utf8 DEFAULT '' COMMENT '邮箱',
   `email_state` smallint(1) unsigned NOT NULL DEFAULT '0' COMMENT '邮箱认证：(0未认证|1审核中|2已认证)',
   `avatar` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '头像地址',
@@ -235,8 +235,6 @@ ALTER TABLE `user` DROP COLUMN balance;
 ALTER TABLE `user` DROP COLUMN integral;
 ALTER TABLE `user` DROP COLUMN vip_level;
 ALTER TABLE `user` DROP COLUMN vip_discount;
-UPDATE `user` SET password = 'asd123';
-UPDATE user SET avatar = '/api/upload/admin_avatar.jpg';
 DROP TABLE IF EXISTS `registered_user`;
 CREATE TABLE `registered_user`(registered_user_id int(11) NOT NULL AUTO_INCREMENT COMMENT '注册用户ID',
 `user_name` varchar(64) comment '用户姓名',
@@ -317,6 +315,3 @@ PRIMARY KEY (online_consultation_id))ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comme
 ALTER TABLE `comment` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE;
 ALTER TABLE `collect` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE;
 ALTER TABLE `praise` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE;
-
-UPDATE forum 
-SET img = CONCAT('/api',img);

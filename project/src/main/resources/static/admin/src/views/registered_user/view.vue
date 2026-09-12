@@ -277,7 +277,6 @@
 
 				var confirm_password = this.confirm_password;
 
-				console.log("表单校验username ,password ,email ,nickname ,user_group" ,username ,password ,email ,nickname ,user_group);
 
 				if(!username){
 					ret = "账号不能为空";

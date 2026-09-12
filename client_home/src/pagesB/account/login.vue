@@ -82,7 +82,7 @@
                 errorMessage: '请输入用户名',
               },
               {
-                minLength: 5,
+                minLength: 8,
                 maxLength: 16,
                 errorMessage: '用户名长度在 {minLength} 到 {maxLength} 个字符',
               },

@@ -117,7 +117,7 @@ export default {
               errorMessage: '请输入用户名',
             },
             {
-              minLength: 5,
+              minLength: 8,
               maxLength: 16,
               errorMessage: '用户名长度在 {minLength} 到 {maxLength} 个字符',
             },
@@ -285,9 +285,11 @@ export default {
      */
     submit_before(param) {
       var user_group = param.user_group;
-      if(user_group === "注册用户"){
-                            }
-              },
+      if (user_group === '注册用户') {
+        return Object.assign({}, param, this.form_sub);
+      }
+      return param;
+    },
 
     /**
      * 提交前校验
@@ -304,23 +306,14 @@ export default {
 
       var confirm_password = this.confirm_password;
 
-      console.log(
-        '表单校验username ,password ,email ,nickname ,user_group',
-        username,
-        password,
-        email,
-        nickname,
-        user_group
-      );
-
       if (!username) {
         ret = '账号不能为空';
       } else if (username.length > 16 || username.length < 5) {
         ret = '账号长度应为5到16个字符之间！';
       } else if (!password) {
         ret = '密码不能为空!';
-      } else if (password.length > 16 || password.length < 5) {
-        ret = '密码长度应为5到16个字符之间！';
+      } else if (password.length > 16 || password.length < 8) {
+        ret = '密码长度应为8到16个字符之间！';
       } else if ((nickname && nickname.length > 12) || nickname.length < 2) {
         ret = '昵称长度应为2个字符到12个字符之间';
       } else if (email && !email_regular.test(email)) {
@@ -360,59 +353,10 @@ export default {
      * @param {Object} func
      */
     submit_after(json, func) {
-      var form = Object.assign({}, this.form);
-      delete form.password;
-      console.log('查询表单form', form);
-      var table = this.getVal(this.list_user_group, 'source_table', { name: form.user_group });
-      console.log('关联表:', table);
-      if (table) {
-        this.get_register(form, table);
-      } else {
-        console.log('用户组没有关联表');
-      }
-    },
-
-    /**
-     * 获取注册表信息
-     * @param {Object} form
-     * @param {Object} table
-     */
-    get_register(form, table) {
-      var form_sub = this.form_sub;
-      this.$get('~/api/user/get_obj', form, (res) => {
-        console.log('注册表信息res', res);
-        if (res.result && res.result.obj) {
-          form_sub.user_id = res.result.obj.user_id;
-          this.submit_sub(form_sub, table);
-        } else if (res.error) {
-          console.error(res.error);
-          this.$toast(res.error.message, 'error');
-        }
-      });
-    },
-
-    /**
-     *  提交附加信息
-     */
-    submit_sub(form, table) {
-	  for (let index in form) {
-	  	if(Array.isArray(form[index])){
-	  	  form[index] = form[index].join(',')
-	  	}
-	  }
-	  setTimeout(() => {
-	  	this.$post('~/api/' + table + '/add?', form, (res) => {
-	  	  console.log('提交结果res：', res);
-	  	  if (res.result) {
-	  	    this.$toast('注册成功!');
-	  	    setTimeout(() => {
-	  	      this.$Router.pushTab('/pages/index/index');
-	  	    }, 1000);
-	  	  } else if (res.error) {
-	  	    this.$toast(res.error.message);
-	  	  }
-	  	});
-	  }, 1000);
+      this.$toast('注册成功，请登录');
+      setTimeout(() => {
+        this.$Router.push('/pagesB/account/login');
+      }, 800);
     },
 
     // 选择学校时触发

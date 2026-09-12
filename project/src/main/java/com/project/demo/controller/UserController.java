@@ -1,317 +1,273 @@
 package com.project.demo.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.project.demo.controller.base.BaseController;
+import com.project.demo.dto.auth.ChangePasswordRequest;
+import com.project.demo.dto.auth.LoginRequest;
+import com.project.demo.dto.auth.RegisterRequest;
+import com.project.demo.dto.auth.UserResponse;
 import com.project.demo.entity.AccessToken;
+import com.project.demo.entity.RegisteredUser;
 import com.project.demo.entity.User;
 import com.project.demo.entity.UserGroup;
+import com.project.demo.security.PasswordService;
 import com.project.demo.service.UserGroupService;
+import com.project.demo.service.RegisteredUserService;
 import com.project.demo.service.UserService;
-
-import com.project.demo.controller.base.BaseController;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-/**
- * 用户账户：用于保存用户登录信息(User)表控制层
- */
-@Slf4j
 @RestController
 @RequestMapping("user")
 public class UserController extends BaseController<User, UserService> {
-    /**
-     * 服务对象
-     */
-    @Autowired
-    public UserController(UserService service) {
+
+    private static final String REGISTERED_USER_GROUP = "注册用户";
+
+    private final UserGroupService userGroupService;
+    private final RegisteredUserService registeredUserService;
+    private final PasswordService passwordService;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    public UserController(UserService service,
+                          UserGroupService userGroupService,
+                          RegisteredUserService registeredUserService,
+                          PasswordService passwordService,
+                          RedisTemplate<String, Object> redisTemplate) {
         setService(service);
+        this.userGroupService = userGroupService;
+        this.registeredUserService = registeredUserService;
+        this.passwordService = passwordService;
+        this.redisTemplate = redisTemplate;
     }
 
-    @Autowired
-    private UserGroupService userGroupService;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
-
-    /**
-     * 注册
-     * @param user
-     * @return
-     */
     @PostMapping("register")
-    public Map<String, Object> signUp(@RequestBody User user) {
-        // 查询用户
-        Map<String, String> query = new HashMap<>();
-        Map<String,Object> map = JSON.parseObject(JSON.toJSONString(user));
-        query.put("username",user.getUsername());
-        List list = service.selectBaseList(service.select(query, new HashMap<>()));
-        if (list.size()>0){
-            return error(30000, "用户已存在");
-        }
-				map.put("password",String.valueOf(map.get("password")));
-		        service.insert(map);
-        return success(1);
-    }
-
-    /**
-     * 找回密码
-     * @param form
-     * @return
-     */
-    @PostMapping("forget_password")
-    public Map<String, Object> forgetPassword(@RequestBody User form,HttpServletRequest request) {
-        JSONObject ret = new JSONObject();
-        String username = form.getUsername();
-        String code = form.getCode();
-        String password = form.getPassword();
-        // 判断条件
-        if(code == null || code.length() == 0){
-            return error(30000, "验证码不能为空");
-        }
-        if(username == null || username.length() == 0){
+    @Transactional
+    public Map<String, Object> signUp(@RequestBody RegisterRequest request) {
+        if (!StringUtils.hasText(request.getUsername())) {
             return error(30000, "用户名不能为空");
         }
-        if(password == null || password.length() == 0){
-            return error(30000, "密码不能为空");
+        if (service.usernameExists(request.getUsername())) {
+            return error(30000, "用户已存在");
         }
 
-        // 查询用户
-        Map<String, String> query = new HashMap<>();
-        query.put("username",username);
-        List list = service.selectBaseList(service.select(query, service.readConfig(request)));
-        if (list.size() > 0) {
-            User o = (User) list.get(0);
-            JSONObject query2 = new JSONObject();
-            JSONObject form2 = new JSONObject();
-            // 修改用户密码
-            query2.put("user_id",o.getUserId());
-						form2.put("password",password);
-			            service.update(query, service.readConfig(request), form2);
-            return success(1);
+        try {
+            User user = fromRegisterRequest(request);
+            user.setPassword(passwordService.hash(request.getPassword()));
+            service.create(user);
+            registeredUserService.create(fromRegisterProfile(request, user.getUserId()));
+            return success(UserResponse.from(user));
+        } catch (IllegalArgumentException exception) {
+            return error(30000, "密码须不少于8个字符、且编码后不超过72字节");
         }
-        return error(70000,"用户不存在");
     }
 
-    /**
-     * 登录
-     * @param data
-     * @param httpServletRequest
-     * @return
-     */
+    @PostMapping("forget_password")
+    public Map<String, Object> forgetPassword() {
+        return error(40300, "密码找回暂未启用，请使用安全验证码流程");
+    }
+
     @PostMapping("login")
-    public Map<String, Object> login(@RequestBody Map<String, String> data, HttpServletRequest httpServletRequest) {
-        log.info("[执行登录接口]");
-
-        String username = data.get("username");
-        String email = data.get("email");
-        String phone = data.get("phone");
-        String password = data.get("password");
-
-        List resultList = null;
-        Map<String, String> map = new HashMap<>();
-        if(username != null && "".equals(username) == false){
-            map.put("username", username);
-            resultList = service.selectBaseList(service.select(map, new HashMap<>()));
-        }
-        else if(email != null && "".equals(email) == false){
-            map.put("email", email);
-            resultList = service.selectBaseList(service.select(map, new HashMap<>()));
-        }
-        else if(phone != null && "".equals(phone) == false){
-            map.put("phone", phone);
-            resultList = service.selectBaseList(service.select(map, new HashMap<>()));
-        }else{
-            return error(30000, "账号或密码不能为空");
-        }
-        if (resultList == null || password == null) {
-            return error(30000, "账号或密码不能为空");
-        }
-        //判断是否有这个用户
-        if (resultList.size()<=0){
-            return error(30000,"用户不存在");
+    public Map<String, Object> login(@RequestBody LoginRequest request) {
+        User user = findLoginUser(request);
+        if (user == null || !passwordService.matches(request.getPassword(), user.getPassword())) {
+            return error(30000, "账号或密码不正确");
         }
 
-        User byUsername = (User) resultList.get(0);
-
-
-        Map<String, String> groupMap = new HashMap<>();
-        groupMap.put("name",byUsername.getUserGroup());
-        List groupList = userGroupService.selectBaseList(userGroupService.select(groupMap, new HashMap<>()));
-        if (groupList.size()<1){
-            return error(30000,"用户组不存在");
+        Map<String, String> groupQuery = new HashMap<>();
+        groupQuery.put("name", user.getUserGroup());
+        List groupList = userGroupService.selectBaseList(
+                userGroupService.select(groupQuery, new HashMap<>()));
+        if (groupList.isEmpty()) {
+            return error(30000, "用户组不存在");
         }
 
         UserGroup userGroup = (UserGroup) groupList.get(0);
-
-        //查询用户审核状态
-        if (!StringUtils.isEmpty(userGroup.getSourceTable())){
-            String res = service.selectExamineState(userGroup.getSourceTable(),byUsername.getUserId());
-            if (res==null){
-                return error(30000,"用户不存在");
-            }
-            if (!res.equals("已通过")){
-                return error(30000,"该用户审核未通过");
+        if (StringUtils.hasText(userGroup.getSourceTable())) {
+            String examineState = service.selectExamineState(
+                    userGroup.getSourceTable(), user.getUserId());
+            if (!"已通过".equals(examineState)) {
+                return error(30000, "该用户审核未通过");
             }
         }
-
-        //查询用户状态
-        if (byUsername.getState()!=1){
-            return error(30000,"用户非可用状态，不能登录");
+        if (!Integer.valueOf(1).equals(user.getState())) {
+            return error(30000, "用户非可用状态，不能登录");
         }
 
-        String face = data.get("is_face");
-				String md5password = password;
-		        if (!StringUtils.isEmpty(face) && face.equals("face")){
-            if (byUsername.getPassword().equals(md5password)) {
-                // 返回用户信息
-                JSONObject user = JSONObject.parseObject(JSONObject.toJSONString(byUsername));
-                JSONObject ret = new JSONObject();
-                ret.put("obj",user);
-                return success(ret);
-            } else {
-                return error(30000, "账号或密码不正确");
-            }
-        }else {
-            if (byUsername.getPassword().equals(md5password)) {
-                // 存储Token到数据库
-                AccessToken accessToken = new AccessToken();
-                accessToken.setToken(UUID.randomUUID().toString().replaceAll("-", ""));
-                accessToken.setUser_id(byUsername.getUserId());
-
-                Duration duration = Duration.ofSeconds(7200L);
-                redisTemplate.opsForValue().set(accessToken.getToken(), accessToken,duration);
-
-                // 返回用户信息
-                JSONObject user = JSONObject.parseObject(JSONObject.toJSONString(byUsername));
-                user.put("token", accessToken.getToken());
-                JSONObject ret = new JSONObject();
-                ret.put("obj",user);
-                return success(ret);
-            } else {
-                return error(30000, "账号或密码不正确");
-            }
+        if ("face".equals(request.getIsFace())) {
+            return userResult(UserResponse.from(user));
         }
+
+        AccessToken accessToken = new AccessToken();
+        accessToken.setToken(UUID.randomUUID().toString().replace("-", ""));
+        accessToken.setUser_id(user.getUserId());
+        redisTemplate.opsForValue().set(accessToken.getToken(), accessToken, Duration.ofHours(2));
+        return userResult(UserResponse.from(user, accessToken.getToken()));
     }
 
-
-    /**
-     * 修改密码
-     * @param data
-     * @param request
-     * @return
-     */
     @PostMapping("change_password")
-    public Map<String, Object> change_password(@RequestBody Map<String, String> data, HttpServletRequest request){
-        // 根据Token获取UserId
-        String token = request.getHeader("x-auth-token");
-        Integer userId = tokenGetUserId(token);
-        // 根据UserId和旧密码获取用户
-        Map<String, String> query = new HashMap<>();
-        String o_password = data.get("o_password");
-        query.put("user_id" ,String.valueOf(userId));
-				query.put("password" ,o_password);
-		        int count = service.selectBaseCount(service.count(query, service.readConfig(request)));
-        if(count > 0){
-            // 修改密码
-            Map<String,Object> form = new HashMap<>();
-						form.put("password",data.get("password"));
-			            service.update(query,service.readConfig(request),form);
-            return success(1);
+    public Map<String, Object> changePassword(@RequestBody ChangePasswordRequest data,
+                                               HttpServletRequest request) {
+        Integer userId = tokenGetUserId(request.getHeader("x-auth-token"));
+        User user = service.findById(userId);
+        if (user == null || !passwordService.matches(data.getOldPassword(), user.getPassword())) {
+            return error(10000, "原密码不正确");
         }
-        return error(10000,"密码修改失败！");
+
+        try {
+            String encodedPassword = passwordService.hash(data.getPassword());
+            if (!service.updatePassword(userId, encodedPassword)) {
+                return error(10000, "密码修改失败");
+            }
+            return success(UserResponse.from(service.findById(userId)));
+        } catch (IllegalArgumentException exception) {
+            return error(30000, "新密码须不少于8个字符、且编码后不超过72字节");
+        }
     }
 
-
-    /**
-     * 登录态
-     * @param request
-     * @return
-     */
     @GetMapping("state")
     public Map<String, Object> state(HttpServletRequest request) {
-        JSONObject ret = new JSONObject();
-        // 获取状态
         String token = request.getHeader("x-auth-token");
-
-        // 根据登录态获取用户ID
-        Integer userId = tokenGetUserId(token);
-
-        log.info("[返回userId] {}",userId);
-        if(userId == null || userId == 0){
-            return error(10000,"用户未登录!");
+        User user = service.findById(tokenGetUserId(token));
+        if (user == null) {
+            return error(10000, "用户未登录");
         }
-
-        // 根据用户ID获取用户
-        Map<String,String> query = new HashMap<>();
-        query.put("user_id" ,String.valueOf(userId));
-
-        // 根据用户ID获取
-        List resultList = service.selectBaseList(service.select(query,service.readConfig(request)));
-        if (resultList.size() > 0) {
-            JSONObject user = JSONObject.parseObject(JSONObject.toJSONString(resultList.get(0)));
-            user.put("token",token);
-            ret.put("obj",user);
-            return success(ret);
-        } else {
-            return error(10000,"用户未登录!");
-        }
+        return userResult(UserResponse.from(user, token));
     }
 
-    /**
-     * 登录态
-     * @param request
-     * @return
-     */
     @GetMapping("quit")
     public Map<String, Object> quit(HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
-        try{
+        if (StringUtils.hasText(token)) {
             redisTemplate.delete(token);
-        }catch (Exception e){
-            e.printStackTrace();
         }
-        return success("退出登录成功！");
+        return success("退出登录成功");
     }
 
-    /**
-     * 获取登录用户ID
-     * @param token
-     * @return
-     */
     public Integer tokenGetUserId(String token) {
-        log.info("[获取的token] {}",token);
-        // 根据登录态获取用户ID
-        if(token == null || "".equals(token)){
+        if (!StringUtils.hasText(token)) {
             return 0;
         }
-        AccessToken byToken = (AccessToken) redisTemplate.opsForValue().get(token);
-        if(byToken == null){
+        Object storedToken = redisTemplate.opsForValue().get(token);
+        if (!(storedToken instanceof AccessToken)) {
             return 0;
         }
-        return byToken.getUser_id();
+        return ((AccessToken) storedToken).getUser_id();
     }
 
-    /**
-     * 重写add
-     * @return
-     */
+    @Override
+    @RequestMapping("/get_obj")
+    public Map<String, Object> obj(HttpServletRequest request) {
+        User user = null;
+        if (StringUtils.hasText(request.getParameter("user_id"))) {
+            try {
+                user = service.findById(Integer.valueOf(request.getParameter("user_id")));
+            } catch (NumberFormatException ignored) {
+                return error(30000, "用户ID格式不正确");
+            }
+        } else if (StringUtils.hasText(request.getParameter("username"))) {
+            user = service.findByUsername(request.getParameter("username"));
+        } else if (StringUtils.hasText(request.getParameter("email"))) {
+            user = service.findByEmail(request.getParameter("email"));
+        } else if (StringUtils.hasText(request.getParameter("phone"))) {
+            user = service.findByPhone(request.getParameter("phone"));
+        }
+
+        if (user == null) {
+            return success(null);
+        }
+        return userResult(UserResponse.from(user));
+    }
+
+    @Override
+    @RequestMapping(value = {"/count_group", "/count"})
+    public Map<String, Object> count(HttpServletRequest request) {
+        String username = request.getParameter("username");
+        if (!StringUtils.hasText(username)) {
+            return error(30000, "仅支持按用户名统计用户");
+        }
+        return success(service.usernameExists(username) ? 1 : 0);
+    }
+
+    @Override
     @PostMapping("/add")
     @Transactional
     public Map<String, Object> add(HttpServletRequest request) throws IOException {
-        Map<String,Object> map = service.readBody(request.getReader());
-				map.put("password",String.valueOf(map.get("password")));
-		        service.insert(map);
-        return success(1);
+        Map<String, Object> body = service.readBody(request.getReader());
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setUsername(asString(body.get("username")));
+        registerRequest.setPassword(asString(body.get("password")));
+        registerRequest.setNickname(asString(body.get("nickname")));
+        registerRequest.setEmail(asString(body.get("email")));
+        registerRequest.setPhone(asString(body.get("phone")));
+        registerRequest.setAvatar(asString(body.get("avatar")));
+        registerRequest.setOpenId(asString(body.get("open_id")));
+        registerRequest.setProfileName(asString(body.get("user_name")));
+        registerRequest.setProfileGender(asString(body.get("user_gender")));
+        return signUp(registerRequest);
     }
 
+    private User findLoginUser(LoginRequest request) {
+        if (StringUtils.hasText(request.getUsername())) {
+            return service.findByUsername(request.getUsername());
+        }
+        if (StringUtils.hasText(request.getEmail())) {
+            return service.findByEmail(request.getEmail());
+        }
+        if (StringUtils.hasText(request.getPhone())) {
+            return service.findByPhone(request.getPhone());
+        }
+        return null;
+    }
+
+    private User fromRegisterRequest(RegisterRequest request) {
+        User user = new User();
+        user.setState(1);
+        user.setUserGroup(REGISTERED_USER_GROUP);
+        user.setPhone(request.getPhone());
+        user.setPhoneState(0);
+        user.setUsername(request.getUsername());
+        user.setNickname(request.getNickname());
+        user.setEmail(request.getEmail());
+        user.setEmailState(0);
+        user.setAvatar(request.getAvatar());
+        user.setOpen_id(request.getOpenId());
+        user.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        return user;
+    }
+
+    private RegisteredUser fromRegisterProfile(RegisterRequest request, Integer userId) {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        RegisteredUser profile = new RegisteredUser();
+        profile.setUserId(userId);
+        profile.setUser_name(StringUtils.hasText(request.getProfileName())
+                ? request.getProfileName() : request.getNickname());
+        profile.setUser_gender(request.getProfileGender());
+        profile.setCreate_time(now);
+        profile.setUpdate_time(now);
+        return profile;
+    }
+
+    private Map<String, Object> userResult(UserResponse user) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("obj", user);
+        return success(result);
+    }
+
+    private String asString(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
 }

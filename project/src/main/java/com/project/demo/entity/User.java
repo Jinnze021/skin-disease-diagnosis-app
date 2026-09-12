@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.io.Serializable;
@@ -74,9 +76,12 @@ public class User implements Serializable {
     private String nickname;
 
     /**
-     * 密码：[0,32]用户登录所需的密码，由6-16位数字或英文组成
+     * BCrypt 密码摘要。只允许从请求反序列化，禁止进入任何 JSON 响应。
      */
     @TableField(value = "password")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JSONField(serialize = false)
+    @ToString.Exclude
     private String password;
 
     /**

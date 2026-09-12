@@ -241,7 +241,7 @@ git commit -m "build: modernize Java 8 dependencies and configuration"
 - Produces: `String PasswordService.hash(String rawPassword)`, `boolean PasswordService.matches(String rawPassword, String encodedPassword)`, and `UserResponse UserResponse.from(User user)`.
 - Consumes: `UserMapper`/`UserService` for persistence; Task 4 adds session issuance to login.
 
-- [ ] **Step 1: Write failing BCrypt and serialization tests**
+- [x] **Step 1: Write failing BCrypt and serialization tests**
 
 ```java
 @Test
@@ -263,27 +263,27 @@ void userResponseContainsNoPasswordProperty() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run tests and verify they fail**
+- [x] **Step 2: Run tests and verify they fail**
 
 Run: `mvn -f project/pom.xml -Dtest=PasswordServiceTest,UserResponseTest test`
 
 Expected: FAIL because the password service and response DTO do not exist.
 
-- [ ] **Step 3: Implement password validation and BCrypt**
+- [x] **Step 3: Implement password validation and BCrypt**
 
 Reject null, whitespace-only, shorter-than-8, and longer-than-72-byte passwords. Use `BCryptPasswordEncoder(12)`. Mark `User.password` write-only with Jackson and stop converting entire `User` objects through Fastjson for API responses.
 
-- [ ] **Step 4: Convert register/login/change-password endpoints to DTOs**
+- [x] **Step 4: Convert register/login/change-password endpoints to DTOs**
 
 Register hashes the password before insert. Login finds by username/email/phone using parameterized service methods and calls `matches`. Change password resolves the authenticated user ID from Task 4 request context and hashes the replacement. All successful responses use `UserResponse`.
 
-- [ ] **Step 5: Run focused tests**
+- [x] **Step 5: Run focused tests**
 
 Run: `mvn -f project/pom.xml -Dtest=PasswordServiceTest,UserResponseTest test`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit password security**
+- [x] **Step 6: Commit password security**
 
 ```bash
 git add project/src/main/java/com/project/demo/security project/src/main/java/com/project/demo/dto/auth project/src/main/java/com/project/demo/entity/User.java project/src/main/java/com/project/demo/controller/UserController.java project/src/test/java/com/project/demo/security project/src/test/java/com/project/demo/dto/auth
