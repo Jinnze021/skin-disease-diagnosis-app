@@ -1,7 +1,7 @@
 {
   "name": "client_home",
   "version": "1.0.0",
-  "private": false,
+  "private": true,
   "scripts": {
     "serve": "npm run dev:h5",
     "build": "npm run build:h5",

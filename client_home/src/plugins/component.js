@@ -252,7 +252,7 @@ export default {
               url_new = url;
             }
           }
-          return process.env.VUE_APP_BASE_HOST + url_new;
+          return (process.env.VUE_APP_BASE_HOST || '') + url_new;
           // if (!url) {
           //   return '/static/img/logo.png';
           // }
@@ -293,7 +293,7 @@ export default {
                 url_new = url;
               }
             }
-            return process.env.VUE_APP_BASE_HOST +"/"+ url_new;
+            return (process.env.VUE_APP_BASE_HOST || '') + "/" + url_new;
           } else {
             return '/static/img/logo.png';
           }

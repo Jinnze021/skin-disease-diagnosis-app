@@ -1,7 +1,7 @@
 import Request from 'luch-request';
 import store from '@/store';
 import Qs from 'qs';
-const baseUrl = process.env.VUE_APP_BASE_HOST + process.env.VUE_APP_BASE_API;
+const baseUrl = (process.env.VUE_APP_BASE_HOST || '') + (process.env.VUE_APP_BASE_API || '/api');
 const http = new Request({
   baseURL: baseUrl,
   timeout: 8000,

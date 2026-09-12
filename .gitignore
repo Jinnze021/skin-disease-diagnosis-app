@@ -1,5 +1,6 @@
 .worktrees/
 .m2/
+.npm-cache/
 .idea/
 *.iml
 **/target/

@@ -13,7 +13,7 @@ export const getBaseImgUrl = (url) => {
   if (/^http/.test(url)) {
     return url;
   } else {
-    return process.env.VUE_APP_BASE_HOST + url;
+    return (process.env.VUE_APP_BASE_HOST || '') + url;
   }
 };
 

@@ -1,7 +1,9 @@
 // 生产环境，测试和正式
 const IS_PROD = ['production'].includes(process.env.NODE_ENV);
 const devServerPort = 8081;
-console.log(process.env.VUE_APP_BASE_API);
+const baseApi = process.env.VUE_APP_BASE_API || '/api';
+const baseHost = process.env.VUE_APP_BASE_HOST || '';
+const developmentBackend = baseHost || 'http://127.0.0.1:5000';
 const TransformPages = require('uni-read-pages');
 const { webpack } = new TransformPages();
 
@@ -17,15 +19,15 @@ module.exports = {
       errors: true,
     },
     proxy: {
-      [process.env.VUE_APP_BASE_API]: {
-        target: process.env.VUE_APP_BASE_HOST + process.env.VUE_APP_BASE_API, // 后端接口测试环境地址  配nginx 时使用
+      [baseApi]: {
+        target: developmentBackend + baseApi, // 后端接口测试环境地址  配nginx 时使用
         changeOrigin: true, // 是否允许跨越
         // pathRewrite: {
         //   '^/api': '/api', // 重写 不配nginx 时使用
         // },
         // rewrite: (path) => path.replace(new RegExp('^' + process.env.VUE_APP_BASE_API), ''),
         pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: '',
+          ['^' + baseApi]: '',
         },
       },
     },
