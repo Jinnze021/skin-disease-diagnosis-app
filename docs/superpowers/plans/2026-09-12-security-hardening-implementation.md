@@ -37,7 +37,7 @@
 - Consumes: the read-only original folder.
 - Produces: a source-only safe copy with no known credential or personal-data literals and a hash manifest used in Task 10.
 
-- [ ] **Step 1: Record the original source hash manifest**
+- [x] **Step 1: Record the original source hash manifest**
 
 Run a PowerShell manifest over maintained files while excluding generated dependency and build folders:
 
@@ -52,11 +52,11 @@ Get-ChildItem -LiteralPath $source -Recurse -File |
   } | Sort-Object | Set-Content -LiteralPath '..\skin-disease-original-source.sha256' -Encoding UTF8
 ```
 
-- [ ] **Step 2: Copy maintained source only**
+- [x] **Step 2: Copy maintained source only**
 
 Copy `client_home` and `project` while excluding `node_modules`, `target`, `dist`, `unpackage`, `.idea`, and `*.iml`. Copy `project.sql` for local sanitization only. Do not add copied files to Git yet.
 
-- [ ] **Step 3: Add repository-wide ignore rules**
+- [x] **Step 3: Add repository-wide ignore rules**
 
 Create `.gitignore` with this minimum content:
 
@@ -104,7 +104,7 @@ APP_UPLOAD_DIR=./uploads
 APP_ALLOWED_ORIGINS=http://localhost:8080
 ```
 
-- [ ] **Step 4: Remove known secret-bearing code before the first source commit**
+- [x] **Step 4: Remove known secret-bearing code before the first source commit**
 
 Delete the EasyDL constants and direct Baidu OAuth/model requests from `edit.vue`. Replace `startDiagnosis()` with `uni.uploadFile` to `~/api/ai/skin-diagnosis`, multipart field `file`, and the existing `X-Auth-Token`; preserve the page's loading/result/error state. Task 8 supplies this endpoint. Delete `RsaUtils.java` and remove its imports/usages from `UserController`. Replace every sensitive YAML value with an environment expression and no secret fallback:
 
@@ -137,11 +137,11 @@ app:
     hmac-key: ${PASSWORD_RESET_HMAC_KEY:}
 ```
 
-- [ ] **Step 5: Replace the database dump with a schema-only script**
+- [x] **Step 5: Replace the database dump with a schema-only script**
 
 Keep `CREATE TABLE`, indexes, and non-personal role/category seed rows. Remove all rows from `user`, `registered_user`, `online_consultation`, `skin_detection`, `access_token`, `code_token`, and any table containing phone, email, free text, images, passwords, or session values.
 
-- [ ] **Step 6: Run the first sensitive-information gate**
+- [x] **Step 6: Run the first sensitive-information gate**
 
 Run searches over tracked candidates, excluding dependency/build folders:
 
@@ -151,7 +151,7 @@ rg -n -i --glob '!**/node_modules/**' --glob '!**/target/**' --glob '!**/dist/**
 
 Expected: only documentation, property names, environment placeholders, and test fixtures explicitly marked as fake; no credential-shaped literal.
 
-- [ ] **Step 7: Commit the sanitized baseline**
+- [x] **Step 7: Commit the sanitized baseline**
 
 ```bash
 git add .gitignore .env.example client_home project project.sql

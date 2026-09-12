@@ -1,0 +1,392 @@
+{
+  "pages": [
+    {
+      "name": "首页",
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "首页",
+        "enablePullDownRefresh": false
+      },
+      "meta": {
+        "noAuth": true
+      }
+    },
+    {
+      "name": "搜索",
+      "path": "pages/search/index",
+      "style": {
+        "navigationBarTitleText": "搜索",
+        "enablePullDownRefresh": false
+      },
+      "meta": {
+        "noAuth": true
+      }
+    },
+    {
+      "path": "pages/webview/webview",
+      "style": {
+        "navigationBarTitleText": "网址跳转"
+      },
+      "meta": {
+        "noAuth": true
+      }
+    },
+
+    {
+      "path": "pages/media/music",
+      "style": {
+        "navigationBarTitleText": "音乐",
+        "backgroundColor": "#000000"
+      }
+    },
+    {
+      "path": "pages/media/image",
+      "style": {
+        "navigationBarTitleText": "图片预览",
+        "backgroundColor": "#000000"
+      }
+    },
+    {
+      "path": "pages/media/video",
+      "style": {
+        "navigationBarTitleText": "视频",
+        "backgroundColor": "#000000"
+      }
+    },
+    {
+      "path": "pages/user/comment",
+      "style": {
+        "navigationBarTitleText": "我的评论"
+      }
+    },
+    {
+      "path": "pages/article/list",
+      "style": {
+        "navigationBarTitleText": "新闻资讯"
+      }
+    },
+    {
+      "path": "pages/article/index",
+      "style": {
+        "navigationBarTitleText": "新闻资讯"
+      },
+      "meta": {
+        "noAuth": true
+      }
+    },
+    {
+      "path": "pages/article/details",
+      "style": {
+        "navigationBarTitleText": "新闻资讯详情"
+      }
+    },
+    {
+      "path": "pages/forum/index",
+      "style": {
+        "navigationBarTitleText": "病友交流"
+      },
+      "meta": {
+        "noAuth": true
+      }
+    },
+    {
+      "path": "pages/notice/list",
+      "style": {
+        "navigationBarTitleText": "公告信息列表"
+      }
+    },
+    {
+      "path": "pages/notice/details",
+      "style": {
+        "navigationBarTitleText": "公告信息"
+      }
+    },
+    {
+      "path": "pages/user/collect",
+      "style": {
+        "navigationBarTitleText": "我的收藏"
+      }
+    },
+    {
+      "path": "pages/user/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      },
+      "meta": {
+        "noAuth": true
+      }
+    },
+    {
+      "path": "pages/user/password",
+      "style": {
+        "navigationBarTitleText": "修改密码"
+      }
+    },
+    {
+      "path": "pages/user/info",
+      "style": {
+        "navigationBarTitleText": "基本信息"
+      }
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "pagesA",
+      "pages": [
+        {
+          "path": "forum/list",
+          "style": {
+            "navigationBarTitleText": "病友交流列表"
+          }
+        },
+        {
+          "path": "forum/details",
+          "style": {
+            "navigationBarTitleText": "病友交流详情"
+          }
+        },
+        {
+          "path": "forum/view",
+          "style": {
+            "navigationBarTitleText": "发布内容"
+          }
+        },
+        {
+          "path": "forum/table",
+          "style": {
+            "navigationBarTitleText": "病友交流管理"
+          }
+        },
+        {
+          "path": "forum/edit",
+          "style": {
+            "navigationBarTitleText": "病友交流详情"
+          }
+        },
+        {
+          "path": "forum/add",
+          "style": {
+            "navigationBarTitleText": "病友交流添加"
+          }
+        },
+        {
+          "path": "user_center/index",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+        }
+      ]
+    },
+    {
+      "root": "pagesB",
+      "pages": [
+        {
+          "path": "comment/table",
+          "style": {
+            "navigationBarTitleText": "评论管理"
+          }
+        },
+        {
+          "path": "comment/edit",
+          "style": {
+            "navigationBarTitleText": "评论"
+          }
+        },
+        {
+          "path": "comment/view",
+          "style": {
+            "navigationBarTitleText": "查看评论"
+          }
+        },
+        {
+          "path": "account/register",
+          "style": {
+            "navigationBarTitleText": "注册"
+          },
+          "meta": {
+            "noAuth": true
+          }
+        },
+        {
+          "name": "登录",
+          "path": "account/login",
+          "style": {
+            "navigationBarTitleText": "登录",
+            "enablePullDownRefresh": false
+          },
+          "meta": {
+            "noAuth": true
+          }
+        },
+        {
+          "path": "account/forgot",
+          "style": {
+            "navigationBarTitleText": "找回密码"
+          },
+          "meta": {
+            "noAuth": true
+          }
+        }
+      ]
+    },
+    {
+      "root": "pagesC",
+      "pages": [
+                  // 皮肤检测编辑路由
+        {
+          "path": "skin_detection/edit",
+          "style": {
+            "navigationBarTitleText": "皮肤检测"
+          }
+        },
+                    // 知识科普列表路由
+        {
+          "path": "knowledge_popularization/list",
+          "style": {
+            "navigationBarTitleText": "知识科普列表"
+          }
+        },
+            // 知识科普详情路由
+        {
+          "path": "knowledge_popularization/details",
+          "style": {
+            "navigationBarTitleText": "知识科普"
+          }
+        },
+                // 医院信息列表路由
+        {
+          "path": "hospital_information/list",
+          "style": {
+            "navigationBarTitleText": "医院信息列表"
+          }
+        },
+            // 医院信息详情路由
+        {
+          "path": "hospital_information/details",
+          "style": {
+            "navigationBarTitleText": "医院信息"
+          }
+        },
+              // 在线咨询编辑路由
+        {
+          "path": "online_consultation/edit",
+          "style": {
+            "navigationBarTitleText": "在线咨询"
+          }
+        },
+                      // 注册用户列表路由
+        {
+            "path": "registered_user/table",
+            "style": {
+              "navigationBarTitleText": "注册用户列表"
+            }
+        },
+        // 注册用户编辑路由
+        {
+            "path": "registered_user/view",
+            "style": {
+              "navigationBarTitleText": "注册用户详情"
+            }
+        },
+                    // 皮肤检测列表路由
+        {
+            "path": "skin_detection/table",
+            "style": {
+              "navigationBarTitleText": "皮肤检测列表"
+            }
+        },
+        // 皮肤检测编辑路由
+        {
+            "path": "skin_detection/view",
+            "style": {
+              "navigationBarTitleText": "皮肤检测详情"
+            }
+        },
+                    // 知识科普列表路由
+        {
+            "path": "knowledge_popularization/table",
+            "style": {
+              "navigationBarTitleText": "知识科普列表"
+            }
+        },
+        // 知识科普编辑路由
+        {
+            "path": "knowledge_popularization/view",
+            "style": {
+              "navigationBarTitleText": "知识科普详情"
+            }
+        },
+                    // 医院信息列表路由
+        {
+            "path": "hospital_information/table",
+            "style": {
+              "navigationBarTitleText": "医院信息列表"
+            }
+        },
+        // 医院信息编辑路由
+        {
+            "path": "hospital_information/view",
+            "style": {
+              "navigationBarTitleText": "医院信息详情"
+            }
+        },
+                    // 在线咨询列表路由
+        {
+          "path": "online_consultation/table",
+          "style": {
+            "navigationBarTitleText": "在线咨询列表"
+          }
+        },
+        // 在线咨询编辑路由
+        {
+          "path": "online_consultation/view",
+          "style": {
+            "navigationBarTitleText": "在线咨询详情"
+          }
+        }
+            ]
+    }
+  ],
+  "globalStyle": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uniapp-ma-template",
+    "navigationBarBackgroundColor": "#fff",
+    "backgroundColor": "#F8F8F8",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#8a8a8a",
+    "selectedColor": "#3388FF",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": ""
+      },
+      {
+        "pagePath": "pages/forum/index",
+        "text": ""
+      },
+      {
+        "pagePath": "pages/article/index",
+        "text": ""
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": ""
+      }
+    ]
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "tui-(.*)": "@/components/thorui/tui-$1/tui-$1.vue",
+      "^tn-(.*)": "@/tuniao-ui/components/tn-$1/tn-$1.vue",
+      "^c-(.*)": "@/custom-ui/c-$1/c-$1.vue",
+      "^u-(.*)": "@dcloudio/uniui/lib/u-$1/u-$1.vue"
+    }
+  }
+}
