@@ -36,6 +36,10 @@ class LoginInterceptorTest {
     void exposesOnlyExplicitPublicEndpoints() throws Exception {
         assertEquals(AccessLevel.PUBLIC, policy.requiredAccess("POST", "/user/login"));
         assertEquals(AccessLevel.PUBLIC, policy.requiredAccess("POST", "/user/register"));
+        assertEquals(AccessLevel.PUBLIC,
+                policy.requiredAccess("POST", "/code_token/password-reset/request"));
+        assertEquals(AccessLevel.PUBLIC,
+                policy.requiredAccess("POST", "/user/password-reset/confirm"));
         assertEquals(AccessLevel.PUBLIC, policy.requiredAccess("GET", "/article/get_list"));
         assertEquals(AccessLevel.PUBLIC, policy.requiredAccess("OPTIONS", "/anything"));
         assertEquals(AccessLevel.AUTHENTICATED, policy.requiredAccess("POST", "/ai/skin-diagnosis"));

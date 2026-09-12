@@ -3,6 +3,7 @@ package com.project.demo.controller;
 import com.project.demo.controller.base.BaseController;
 import com.project.demo.dto.auth.ChangePasswordRequest;
 import com.project.demo.dto.auth.LoginRequest;
+import com.project.demo.dto.auth.PasswordResetConfirmRequest;
 import com.project.demo.dto.auth.RegisterRequest;
 import com.project.demo.dto.auth.UserResponse;
 import com.project.demo.entity.RegisteredUser;
@@ -10,6 +11,8 @@ import com.project.demo.entity.User;
 import com.project.demo.entity.UserGroup;
 import com.project.demo.security.IssuedToken;
 import com.project.demo.security.PasswordService;
+import com.project.demo.security.PasswordResetService;
+import com.project.demo.security.InvalidResetCodeException;
 import com.project.demo.security.RequestUser;
 import com.project.demo.security.SessionUser;
 import com.project.demo.security.TokenService;
@@ -40,17 +43,20 @@ public class UserController extends BaseController<User, UserService> {
     private final UserGroupService userGroupService;
     private final RegisteredUserService registeredUserService;
     private final PasswordService passwordService;
+    private final PasswordResetService passwordResetService;
     private final TokenService tokenService;
 
     public UserController(UserService service,
                           UserGroupService userGroupService,
                           RegisteredUserService registeredUserService,
                           PasswordService passwordService,
+                          PasswordResetService passwordResetService,
                           TokenService tokenService) {
         setService(service);
         this.userGroupService = userGroupService;
         this.registeredUserService = registeredUserService;
         this.passwordService = passwordService;
+        this.passwordResetService = passwordResetService;
         this.tokenService = tokenService;
     }
 
@@ -75,9 +81,19 @@ public class UserController extends BaseController<User, UserService> {
         }
     }
 
-    @PostMapping("forget_password")
-    public Map<String, Object> forgetPassword() {
-        return error(40300, "密码找回暂未启用，请使用安全验证码流程");
+    @PostMapping("password-reset/confirm")
+    public Map<String, Object> confirmPasswordReset(@RequestBody PasswordResetConfirmRequest request) {
+        if (request == null) {
+            return error(30000, "请求参数不能为空");
+        }
+        try {
+            passwordResetService.confirm(request.getEmail(), request.getCode(), request.getNewPassword());
+            return success("密码修改成功");
+        } catch (InvalidResetCodeException exception) {
+            return error(30000, "验证码无效或已过期");
+        } catch (IllegalArgumentException exception) {
+            return error(30000, "新密码须不少于8个字符、且编码后不超过72字节");
+        }
     }
 
     @PostMapping("login")

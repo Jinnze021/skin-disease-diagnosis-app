@@ -13,7 +13,7 @@ public class EndpointAccessPolicy {
     private static final Set<String> PUBLIC_POST_ENDPOINTS = new HashSet<>(Arrays.asList(
             "/user/login",
             "/user/register",
-            "/user/password-reset/request",
+            "/code_token/password-reset/request",
             "/user/password-reset/confirm"
     ));
 

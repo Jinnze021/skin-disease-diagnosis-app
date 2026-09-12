@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,9 +28,10 @@ public class AppSecurityProperties {
             throw new IllegalStateException(
                     "EasyDL is enabled but EASYDL_API_KEY, EASYDL_SECRET_KEY, or EASYDL_MODEL_URL is missing");
         }
-        if (passwordReset.enabled && isBlank(passwordReset.hmacKey)) {
+        if (passwordReset.enabled && (isBlank(passwordReset.hmacKey)
+                || passwordReset.hmacKey.getBytes(StandardCharsets.UTF_8).length < 32)) {
             throw new IllegalStateException(
-                    "Password reset is enabled but PASSWORD_RESET_HMAC_KEY is missing");
+                    "Password reset is enabled but PASSWORD_RESET_HMAC_KEY is missing or shorter than 32 bytes");
         }
     }
 

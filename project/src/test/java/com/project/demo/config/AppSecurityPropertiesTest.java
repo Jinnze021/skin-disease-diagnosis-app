@@ -24,6 +24,15 @@ class AppSecurityPropertiesTest {
     }
 
     @Test
+    void rejectsShortHmacKeyWhenPasswordResetIsEnabled() {
+        AppSecurityProperties properties = new AppSecurityProperties();
+        properties.getPasswordReset().setEnabled(true);
+        properties.getPasswordReset().setHmacKey("too-short");
+
+        assertThrows(IllegalStateException.class, properties::validate);
+    }
+
+    @Test
     void allowsDisabledIntegrationsToStartWithoutCredentials() {
         AppSecurityProperties properties = new AppSecurityProperties();
 
@@ -38,7 +47,7 @@ class AppSecurityPropertiesTest {
         properties.getEasyDl().setSecretKey("secret-key");
         properties.getEasyDl().setModelUrl("https://example.invalid/model");
         properties.getPasswordReset().setEnabled(true);
-        properties.getPasswordReset().setHmacKey("test-hmac-key");
+        properties.getPasswordReset().setHmacKey("test-hmac-key-with-at-least-32-bytes");
 
         assertDoesNotThrow(properties::validate);
     }
