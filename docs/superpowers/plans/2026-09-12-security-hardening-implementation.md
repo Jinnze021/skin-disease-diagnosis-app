@@ -706,7 +706,7 @@ git commit -m "docs: explain secure architecture and local setup"
 - Consumes: all implementation tasks and the original manifest from Task 1.
 - Produces: an evidence-backed verification report and a locally clean Git repository ready for user review.
 
-- [ ] **Step 1: Run the complete backend test suite and package**
+- [x] **Step 1: Run the complete backend test suite and package**
 
 Run:
 
@@ -717,35 +717,35 @@ mvn -f project/pom.xml -DskipTests package
 
 Expected: both commands exit 0; the report records the exact number of tests.
 
-- [ ] **Step 2: Install frontend dependencies reproducibly and build**
+- [x] **Step 2: Install frontend dependencies reproducibly and build**
 
 Run `npm ci` and `npm run build` from `client_home`. If the legacy lockfile requires the matching Node LTS version, record the version used in README rather than altering dependencies ad hoc.
 
 Expected: both commands exit 0.
 
-- [ ] **Step 3: Scan the final working tree and Git history**
+- [x] **Step 3: Scan the final working tree and Git history**
 
 Search for credential-shaped literals, private-key blocks, personal phone/email patterns, raw SQL substitution, public password fields, and tracked generated directories. Inspect `git log -p --all` because a clean current tree alone is insufficient.
 
 Expected: no real secrets/data; no executable raw SQL; no `node_modules`, `target`, `dist`, `.idea`, `.env`, upload, or log files tracked.
 
-- [ ] **Step 4: Recompute and compare the original source hash manifest**
+- [x] **Step 4: Recompute and compare the original source hash manifest**
 
 Run the same read-only manifest command from Task 1 into a temporary second file and compare it byte-for-byte with `../skin-disease-original-source.sha256`.
 
 Expected: no difference, proving the original maintained source was not modified.
 
-- [ ] **Step 5: Write the verification report**
+- [x] **Step 5: Write the verification report**
 
 Record the date, Git commit, backend test count, frontend build result, scans performed, original-hash comparison, known limitations, and the fact that real EasyDL integration requires user-supplied environment variables and was tested with mocked HTTP responses.
 
-- [ ] **Step 6: Commit verification evidence**
+- [x] **Step 6: Commit verification evidence**
 
 ```bash
 git add docs/security-verification.md
 git commit -m "test: document security verification results"
 ```
 
-- [ ] **Step 7: Stop before remote operations**
+- [x] **Step 7: Stop before remote operations**
 
 Show the user the safe-public folder, Git log, verification report, and remaining limitations. Request separate explicit authorization before any GitHub rename, deletion, visibility change, or push.

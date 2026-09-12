@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 16.20.2
+          node-version: 24.14.0
           cache: npm
           cache-dependency-path: client_home/package-lock.json
       - name: Install locked dependencies
@@ -35,6 +35,8 @@ jobs:
         run: npm ci --legacy-peer-deps --ignore-scripts
       - name: Build H5 client
         working-directory: client_home
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
         run: npm run build
 
   repository-scan:
@@ -46,7 +48,7 @@ jobs:
       - name: Reject generated or sensitive artifacts
         shell: bash
         run: |
-          tracked=$(git ls-files | grep -E '(^|/)(node_modules|target|dist|unpackage|uploads|logs|\.idea)(/|$)|(^|/)\.env($|\.)|\.(pem|key|p12|jks|dump|bak)$' || true)
+          tracked=$(git ls-files | grep -E '(^|/)(node_modules|target|dist|unpackage|uploads|logs|\.idea)(/|$)|(^|/)\.env($|\.)|\.(pem|key|p12|jks|dump|bak)$' | grep -v '^\.env\.example$' || true)
           if [ -n "$tracked" ]; then
             echo "Disallowed tracked artifacts:"
             echo "$tracked"

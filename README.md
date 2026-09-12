@@ -49,7 +49,7 @@
 - Maven 3.8+
 - MySQL 8
 - Redis 6.2+
-- Node.js 16.20.2（仅用于兼容此 uni-app/Vue 2 构建链）
+- Node.js 24.14.0（与 CI 一致）
 
 创建数据库并导入结构：
 
@@ -84,17 +84,21 @@ mvn -f project/pom.xml spring-boot:run
 ```bash
 cd client_home
 npm ci --legacy-peer-deps --ignore-scripts
+$env:NODE_OPTIONS="--openssl-legacy-provider"  # Windows PowerShell
 npm run serve
 ```
 
 生产构建：
 
 ```bash
+$env:NODE_OPTIONS="--openssl-legacy-provider"  # Windows PowerShell
 npm run build
 ```
 
 无需提交前端 `.env` 文件：开发服务器默认把 `/api` 转发到 `http://127.0.0.1:5000`，生产构建默认使用同源 `/api`；如需改变地址，可在本机设置 `VUE_APP_BASE_HOST` 和 `VUE_APP_BASE_API`。
-若使用 Node 18 及以上版本验证这套旧构建链，需要在当前终端临时设置 `NODE_OPTIONS=--openssl-legacy-provider`；作品仓库和 CI 固定使用 `.nvmrc` 中的 Node 16.20.2。
+这套 uni-app/Vue 2 项目仍使用 Webpack 4，因此在 Node.js 24 下构建时需要临时设置 `NODE_OPTIONS=--openssl-legacy-provider`；不要把该变量配置为系统级永久变量。Linux/macOS 可在命令前使用 `NODE_OPTIONS=--openssl-legacy-provider`，CI 已在构建步骤中局部设置。
+
+> **依赖风险提示：** 该前端来自较早的 uni-app/Vue 2 工程，锁定依赖仍包含 npm 已知漏洞。它仅用于本地面试演示和代码审阅，请勿连接真实用户数据或直接部署到公网生产环境。完整审计结果见 `docs/security-verification.md`；若要生产化，应单独规划 Vue 3/新版 uni-app 迁移。
 
 ## 可选功能
 

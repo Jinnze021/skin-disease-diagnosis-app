@@ -311,7 +311,7 @@
           ret = "请输入正确的邮箱地址 例：test@test.com!";
         }
         // else if (phone && !phone_regular.test(phone)) {
-        //   ret = "请输入正确的手机号码 例：18955552312!";
+        //   ret = "请输入正确的 11 位手机号码!";
         // }
         console.log(param.user_id)
         if (!param.user_id){
