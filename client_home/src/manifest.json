@@ -1,6 +1,6 @@
 {
     "name" : "client_home",
-    "appid" : "__UNI__449907D",
+    "appid" : "__UNI__DEMOAPP",
     "description" : "client_home",
     "versionName" : "1.0.0",
     "versionCode" : "100",
@@ -57,15 +57,15 @@
                     "amap" : {
                         "name" : "Au",
                         "__platform__" : [ "ios", "android" ],
-                        "appkey_ios" : "a16cabb0f8550394e1e7ba0646199ffc",
-                        "appkey_android" : "a16cabb0f8550394e1e7ba0646199ffc"
+                            "appkey_ios" : "",
+                            "appkey_android" : ""
                     }
                 },
                 "maps" : {
                     "amap" : {
                         "name" : "Au",
-                        "appkey_ios" : "a16cabb0f8550394e1e7ba0646199ffc",
-                        "appkey_android" : "a16cabb0f8550394e1e7ba0646199ffc"
+                            "appkey_ios" : "",
+                            "appkey_android" : ""
                     }
                 }
             }
@@ -73,7 +73,7 @@
     },
     "quickapp" : {},
     "mp-weixin" : {
-        "appid" : "wx76b356d532232988",
+        "appid" : "",
         "cloudfunctionRoot" : "/static/cloudfunctions-tcb/",
         "setting" : {
             "urlCheck" : false,
@@ -143,7 +143,7 @@
         "sdkConfigs" : {
             "maps" : {
                 "qqmap" : {
-                    "key" : "VF7BZ-THS6J-Y44F6-KELZY-GZUIE-THF6V"
+                    "key" : ""
                 }
             }
         }

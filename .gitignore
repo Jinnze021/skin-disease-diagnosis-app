@@ -16,6 +16,7 @@
 logs/
 *.log
 uploads/
+client_home/src/project.private.config.json
 *.dump
 *.bak
 application-local.yml
