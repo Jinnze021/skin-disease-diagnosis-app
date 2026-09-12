@@ -50,8 +50,12 @@ public class EndpointAccessPolicy {
         if ("GET".equals(normalizedMethod) && isPublicContentRead(path)) {
             return AccessLevel.PUBLIC;
         }
+        if ("POST".equals(normalizedMethod) && isUploadEndpoint(path)) {
+            return AccessLevel.AUTHENTICATED;
+        }
 
-        if (isResource(path, "/user_group") || isResource(path, "/auth")) {
+        if (isResource(path, "/user_group") || isResource(path, "/auth")
+                || isResource(path, "/nav") || isResource(path, "/order")) {
             return AccessLevel.ADMIN;
         }
         if (isResource(path, "/user")) {
@@ -98,7 +102,20 @@ public class EndpointAccessPolicy {
                 || path.equals("/favicon.ico")
                 || isResource(path, "/admin")
                 || isResource(path, "/static")
-                || path.matches("^/upload/[^/]+\\.[A-Za-z0-9]{1,10}$");
+                || path.matches("^/upload/[^/]+\\.[A-Za-z0-9]{1,10}$")
+                || path.matches("^/upload/files/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(png|jpg)$");
+    }
+
+    private boolean isUploadEndpoint(String path) {
+        return path.equals("/upload/image")
+                || path.equals("/user/upload")
+                || path.equals("/registered_user/upload")
+                || path.equals("/skin_detection/upload")
+                || path.equals("/hospital_information/upload")
+                || path.equals("/forum/upload")
+                || path.equals("/comment/upload")
+                || path.equals("/online_consultation/upload")
+                || path.equals("/knowledge_popularization/upload");
     }
 
     private boolean isResource(String path, String resource) {

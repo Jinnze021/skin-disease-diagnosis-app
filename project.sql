@@ -38,18 +38,6 @@ CREATE TABLE `auth` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`auth_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户权限管理';
-DROP TABLE IF EXISTS `upload`;
-CREATE TABLE `upload` (
-  `upload_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '上传ID',
-  `name` varchar(64) CHARACTER SET utf8 DEFAULT NULL COMMENT '文件名',
-  `path` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '访问路径',
-  `file` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '文件路径',
-  `display` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '显示顺序',
-  `father_id` int(11) DEFAULT '0' COMMENT '父级ID',
-  `dir` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '文件夹',
-  `type` varchar(32) CHARACTER SET utf8 DEFAULT NULL COMMENT '文件类型',
-  PRIMARY KEY (`upload_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文件上传';
 DROP TABLE IF EXISTS `user_group`;
 CREATE TABLE `user_group` (
   `group_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户组ID',

@@ -45,7 +45,11 @@ class LoginInterceptorTest {
         assertEquals(AccessLevel.AUTHENTICATED, policy.requiredAccess("POST", "/ai/skin-diagnosis"));
         assertEquals(AccessLevel.ADMIN, policy.requiredAccess("POST", "/article/add"));
         assertEquals(AccessLevel.ADMIN, policy.requiredAccess("GET", "/article/del"));
-        assertEquals(AccessLevel.AUTHENTICATED, policy.requiredAccess("POST", "/upload/upload"));
+        assertEquals(AccessLevel.AUTHENTICATED, policy.requiredAccess("POST", "/upload/image"));
+        assertEquals(AccessLevel.AUTHENTICATED,
+                policy.requiredAccess("POST", "/hospital_information/upload"));
+        assertEquals(AccessLevel.PUBLIC,
+                policy.requiredAccess("GET", "/upload/files/123e4567-e89b-12d3-a456-426614174000.png"));
         assertEquals(AccessLevel.ADMIN, policy.requiredAccess("GET", "/user/get_list"));
 
         MockHttpServletRequest request = request("POST", "/api/user/login");
