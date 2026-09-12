@@ -6,7 +6,7 @@
 
 **Architecture:** Preserve the existing Uni-app and Spring Boot/MyBatis-Plus structure while moving secrets and model calls behind a focused backend adapter. Central services own authentication, password reset, query validation, and image storage so controllers do not duplicate security decisions. The source graduation-project folder remains read-only; all edits and Git history live in the safe-public copy.
 
-**Tech Stack:** Java 8, Spring Boot 2.7.18, MyBatis-Plus 3.5.7.1, Redis, MySQL 8, BCrypt, JUnit 5, Mockito, Uni-app/Vue 2, EasyDL HTTP API
+**Tech Stack:** Java 8, Spring Boot 2.7.18, MyBatis-Plus 3.5.7, Redis, MySQL 8, BCrypt, JUnit 5, Mockito, Uni-app/Vue 2, EasyDL HTTP API
 
 **Spec:** `docs/superpowers/specs/2026-09-12-security-hardening-design.md`
 
@@ -171,7 +171,7 @@ git commit -m "chore: create sanitized public source baseline"
 - Consumes: environment variable names from Task 1.
 - Produces: `AppSecurityProperties` with nested `Cors`, `Upload`, and `EasyDl` configuration objects used by Tasks 3, 7, and 8.
 
-- [ ] **Step 1: Write a failing configuration binding test**
+- [x] **Step 1: Write a failing configuration binding test**
 
 ```java
 @Test
@@ -182,15 +182,15 @@ void rejectsBlankEasyDlSecretsWhenDiagnosisIsEnabled() {
 }
 ```
 
-- [ ] **Step 2: Run the focused test and verify the class is missing**
+- [x] **Step 2: Run the focused test and verify the class is missing**
 
 Run: `mvn -f project/pom.xml -Dtest=AppSecurityPropertiesTest test`
 
 Expected: FAIL because `AppSecurityProperties` does not exist.
 
-- [ ] **Step 3: Update dependencies and add typed configuration**
+- [x] **Step 3: Update dependencies and add typed configuration**
 
-Set Spring Boot to `2.7.18`, retain Java source/target 8, set MyBatis-Plus to `3.5.7.1`, add `spring-security-crypto`, and remove unused JPA, Alipay, Aliyun image-recognition, Baidu SDK, duplicate mail, and devtools dependencies after confirming no maintained source imports them. Remove `DataSourceAutoConfiguration` exclusion and `@EnableJpaRepositories` from `Application` so Spring Boot configures the datasource normally.
+Set Spring Boot to `2.7.18`, retain Java source/target 8, set MyBatis-Plus to `3.5.7` (the published artifact in Maven Central), add `spring-security-crypto`, and remove unused JPA, Alipay, Aliyun image-recognition, Baidu SDK, duplicate mail, and devtools dependencies after confirming no maintained source imports them. Remove `DataSourceAutoConfiguration` exclusion and `@EnableJpaRepositories` from `Application` so Spring Boot configures the datasource normally.
 
 Implement:
 
@@ -212,13 +212,13 @@ public class AppSecurityProperties {
 
 Use Lombok `@Getter`/`@Setter` on this configuration class and the nested `Cors`, `Upload`, `EasyDl`, and `PasswordReset` classes. Give `EasyDl.enabled` and `PasswordReset.enabled` the safe default `false`, `Upload.maxBytes` the value `5242880`, and `Cors.allowedOrigins` the default singleton list `http://localhost:8080`. Credential strings default to empty only so disabled integrations can start; `validate()` rejects empty credentials whenever the corresponding integration is enabled.
 
-- [ ] **Step 4: Run configuration and compile tests**
+- [x] **Step 4: Run configuration and compile tests**
 
 Run: `mvn -f project/pom.xml -Dtest=AppSecurityPropertiesTest test`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit the build baseline**
+- [x] **Step 5: Commit the build baseline**
 
 ```bash
 git add project/pom.xml project/src/main/java/com/project/demo/Application.java project/src/main/resources/application.yml project/src/main/java/com/project/demo/config/AppSecurityProperties.java project/src/test/java/com/project/demo/config/AppSecurityPropertiesTest.java
