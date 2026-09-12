@@ -45,10 +45,24 @@ class AppSecurityPropertiesTest {
         properties.getEasyDl().setEnabled(true);
         properties.getEasyDl().setApiKey("api-key");
         properties.getEasyDl().setSecretKey("secret-key");
-        properties.getEasyDl().setModelUrl("https://example.invalid/model");
+        properties.getEasyDl().setModelUrl(
+                "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/classification/FAKE_MODEL");
         properties.getPasswordReset().setEnabled(true);
         properties.getPasswordReset().setHmacKey("test-hmac-key-with-at-least-32-bytes");
 
         assertDoesNotThrow(properties::validate);
+    }
+
+    @Test
+    void rejectsNonBaiduEasyDlEndpoints() {
+        AppSecurityProperties properties = new AppSecurityProperties();
+        properties.getEasyDl().setEnabled(true);
+        properties.getEasyDl().setApiKey("FAKE_API_KEY");
+        properties.getEasyDl().setSecretKey("FAKE_SECRET_KEY");
+        properties.getEasyDl().setTokenUrl("https://attacker.invalid/oauth/2.0/token");
+        properties.getEasyDl().setModelUrl(
+                "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/classification/FAKE_MODEL");
+
+        assertThrows(IllegalStateException.class, properties::validate);
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,9 +26,14 @@ public class AppSecurityProperties {
     @PostConstruct
     public void validate() {
         if (easyDl.enabled
-                && (isBlank(easyDl.apiKey) || isBlank(easyDl.secretKey) || isBlank(easyDl.modelUrl))) {
+                && (isBlank(easyDl.apiKey) || isBlank(easyDl.secretKey)
+                || isBlank(easyDl.tokenUrl) || isBlank(easyDl.modelUrl))) {
             throw new IllegalStateException(
-                    "EasyDL is enabled but EASYDL_API_KEY, EASYDL_SECRET_KEY, or EASYDL_MODEL_URL is missing");
+                    "EasyDL is enabled but its required environment variables are incomplete");
+        }
+        if (easyDl.enabled) {
+            requireTrustedEasyDlUrl(easyDl.tokenUrl, "/oauth/2.0/token");
+            requireTrustedEasyDlUrl(easyDl.modelUrl, "/rpc/2.0/ai_custom/");
         }
         if (passwordReset.enabled && (isBlank(passwordReset.hmacKey)
                 || passwordReset.hmacKey.getBytes(StandardCharsets.UTF_8).length < 32)) {
@@ -37,6 +44,22 @@ public class AppSecurityProperties {
 
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private static void requireTrustedEasyDlUrl(String value, String requiredPathPrefix) {
+        try {
+            URI uri = new URI(value);
+            if (!"https".equalsIgnoreCase(uri.getScheme())
+                    || !"aip.baidubce.com".equalsIgnoreCase(uri.getHost())
+                    || uri.getRawUserInfo() != null
+                    || uri.getPort() != -1
+                    || uri.getPath() == null
+                    || !uri.getPath().startsWith(requiredPathPrefix)) {
+                throw new IllegalStateException("EasyDL endpoint must use the trusted Baidu HTTPS host");
+            }
+        } catch (URISyntaxException exception) {
+            throw new IllegalStateException("EasyDL endpoint is invalid", exception);
+        }
     }
 
     @Getter
@@ -59,6 +82,7 @@ public class AppSecurityProperties {
         private boolean enabled = false;
         private String apiKey = "";
         private String secretKey = "";
+        private String tokenUrl = "https://aip.baidubce.com/oauth/2.0/token";
         private String modelUrl = "";
     }
 

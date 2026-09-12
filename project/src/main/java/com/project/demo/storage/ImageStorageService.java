@@ -38,6 +38,30 @@ public class ImageStorageService {
     }
 
     public StoredImage store(MultipartFile file) {
+        ValidatedImage image = readAndValidate(file);
+
+        try {
+            Files.createDirectories(uploadRoot);
+            String fileName = UUID.randomUUID().toString() + image.format.extension;
+            Path target = safePath(fileName);
+            boolean written = ImageIO.write(image.decoded, image.format.writerName, target.toFile());
+            if (!written) {
+                Files.deleteIfExists(target);
+                throw new InvalidImageException("当前环境不支持该图片格式");
+            }
+            return new StoredImage(fileName, image.format.contentType, target);
+        } catch (InvalidImageException exception) {
+            throw exception;
+        } catch (IOException exception) {
+            throw new InvalidImageException("图片保存失败", exception);
+        }
+    }
+
+    public byte[] validate(MultipartFile file) {
+        return readAndValidate(file).bytes;
+    }
+
+    private ValidatedImage readAndValidate(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new InvalidImageException("没有选择图片");
         }
@@ -52,20 +76,11 @@ public class ImageStorageService {
             if (decoded == null || decoded.getWidth() <= 0 || decoded.getHeight() <= 0) {
                 throw new InvalidImageException("文件不是可解码的图片");
             }
-
-            Files.createDirectories(uploadRoot);
-            String fileName = UUID.randomUUID().toString() + format.extension;
-            Path target = safePath(fileName);
-            boolean written = ImageIO.write(decoded, format.writerName, target.toFile());
-            if (!written) {
-                Files.deleteIfExists(target);
-                throw new InvalidImageException("当前环境不支持该图片格式");
-            }
-            return new StoredImage(fileName, format.contentType, target);
+            return new ValidatedImage(bytes, format, decoded);
         } catch (InvalidImageException exception) {
             throw exception;
         } catch (IOException exception) {
-            throw new InvalidImageException("图片读取或保存失败", exception);
+            throw new InvalidImageException("图片读取失败", exception);
         }
     }
 
@@ -147,6 +162,18 @@ public class ImageStorageService {
             this.extension = extension;
             this.writerName = writerName;
             this.contentType = contentType;
+        }
+    }
+
+    private static final class ValidatedImage {
+        private final byte[] bytes;
+        private final ImageFormat format;
+        private final BufferedImage decoded;
+
+        private ValidatedImage(byte[] bytes, ImageFormat format, BufferedImage decoded) {
+            this.bytes = bytes;
+            this.format = format;
+            this.decoded = decoded;
         }
     }
 }

@@ -48,6 +48,7 @@ app:
     enabled: ${EASYDL_ENABLED:false}
     api-key: ${EASYDL_API_KEY:}
     secret-key: ${EASYDL_SECRET_KEY:}
+    token-url: ${EASYDL_TOKEN_URL:https://aip.baidubce.com/oauth/2.0/token}
     model-url: ${EASYDL_MODEL_URL:}
   upload:
     dir: ${APP_UPLOAD_DIR:./uploads}
